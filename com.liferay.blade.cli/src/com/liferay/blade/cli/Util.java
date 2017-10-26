@@ -301,12 +301,17 @@ public class Util {
 					while ( (line = br.readLine()) != null) {
 						ps.println(line);
 					}
-
-					is.close();
 				}
 
 				catch (IOException ioe) {
 					ioe.printStackTrace();
+				}
+				finally
+				{
+					try {
+						is.close();
+					} catch (IOException e) {
+					}
 				}
 			}
 

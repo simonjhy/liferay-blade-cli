@@ -101,11 +101,11 @@ public class SamplesCommand {
 	}
 
 	private void addGradleWrapper(File dest) throws Exception {
-		InputStream in = SamplesCommand.class.getResourceAsStream("/wrapper.zip");
+		try(InputStream in = SamplesCommand.class.getResourceAsStream("/wrapper.zip")){
+			Util.copy(in, dest);
 
-		Util.copy(in, dest);
-
-		new File(dest, "gradlew").setExecutable(true);
+			new File(dest, "gradlew").setExecutable(true);
+		}
 	}
 
 	private String deindent(String s) {

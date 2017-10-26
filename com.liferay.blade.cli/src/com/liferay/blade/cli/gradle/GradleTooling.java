@@ -82,30 +82,30 @@ public class GradleTooling {
 
 			depsDir.mkdirs();
 
-			InputStream in = GradleTooling.class.getResourceAsStream(
-				"/deps.zip");
+			try(InputStream in = GradleTooling.class.getResourceAsStream(
+				"/deps.zip")){
+				Util.copy(in, depsDir);
 
-			Util.copy(in, depsDir);
+				final String initScriptTemplate = IO.collect(
+					GradleTooling.class.getResourceAsStream("init.gradle"));
 
-			final String initScriptTemplate = IO.collect(
-				GradleTooling.class.getResourceAsStream("init.gradle"));
+				String path = depsDir.getAbsolutePath();
 
-			String path = depsDir.getAbsolutePath();
+				path = path.replaceAll("\\\\", "/");
 
-			path = path.replaceAll("\\\\", "/");
+				final String initScriptContents = initScriptTemplate.replaceFirst(
+					"%deps%", path);
 
-			final String initScriptContents = initScriptTemplate.replaceFirst(
-				"%deps%", path);
+				File scriptFile = Files.createTempFile(
+					"blade", "init.gradle").toFile();
 
-			File scriptFile = Files.createTempFile(
-				"blade", "init.gradle").toFile();
+				IO.write(initScriptContents.getBytes(), scriptFile);
 
-			IO.write(initScriptContents.getBytes(), scriptFile);
+				modelBuilder.withArguments(
+					"--init-script", scriptFile.getAbsolutePath());
 
-			modelBuilder.withArguments(
-				"--init-script", scriptFile.getAbsolutePath());
-
-			retval = modelBuilder.get();
+				retval = modelBuilder.get();
+			}
 		}
 		finally {
 			if (connection != null) {
