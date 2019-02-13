@@ -19,7 +19,7 @@ package com.liferay.blade.extensions.maven.profile;
 import com.liferay.blade.cli.BladeCLI;
 import com.liferay.blade.cli.command.BaseArgs;
 import com.liferay.blade.cli.command.LocalServer;
-import com.liferay.blade.extensions.maven.profile.internal.MavenUtil;
+import com.liferay.blade.cli.util.MavenUtil;
 
 import java.io.File;
 

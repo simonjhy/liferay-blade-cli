@@ -23,7 +23,7 @@ import aQute.bnd.osgi.Jar;
 import aQute.lib.io.IO;
 
 import com.liferay.blade.cli.TestUtil;
-import com.liferay.blade.extensions.maven.profile.internal.MavenUtil;
+import com.liferay.blade.cli.util.MavenUtil;
 
 import java.io.File;
 

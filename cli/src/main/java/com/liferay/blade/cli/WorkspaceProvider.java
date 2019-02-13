@@ -33,6 +33,8 @@ public interface WorkspaceProvider {
 
 	public File getWorkspaceDir(File dir);
 
+	public boolean isDependencyManagementEnabled(File dir);
+
 	public default boolean isWorkspace(BladeCLI blade) {
 		File dirToCheck;
 

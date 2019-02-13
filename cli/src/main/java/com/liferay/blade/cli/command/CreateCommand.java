@@ -260,12 +260,7 @@ public class CreateCommand extends BaseCommand<CreateArgs> {
 
 		WorkspaceProvider workspaceProvider = bladeCLI.getWorkspaceProvider(baseDir);
 
-		if (workspaceProvider instanceof GradleWorkspaceProvider) {
-			GradleWorkspaceProvider workspaceProviderGradle = (GradleWorkspaceProvider)workspaceProvider;
-
-			projectTemplatesArgs.setDependencyManagementEnabled(
-				workspaceProviderGradle.isDependencyManagementEnabled(baseDir));
-		}
+		projectTemplatesArgs.setDependencyManagementEnabled(workspaceProvider.isDependencyManagementEnabled(baseDir));
 
 		projectTemplatesArgs.setHostBundleSymbolicName(createArgs.getHostBundleBSN());
 		projectTemplatesArgs.setLiferayVersion(_getLiferayVersion(bladeCLI, createArgs));

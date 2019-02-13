@@ -22,7 +22,8 @@ import com.liferay.blade.cli.command.BaseArgs;
 import com.liferay.blade.cli.command.BladeProfile;
 import com.liferay.blade.cli.command.CreateArgs;
 import com.liferay.blade.cli.command.CreateCommand;
-import com.liferay.blade.extensions.maven.profile.internal.MavenUtil;
+import com.liferay.blade.cli.maven.MavenWorkspaceProvider;
+import com.liferay.blade.cli.util.MavenUtil;
 import com.liferay.project.templates.ProjectTemplatesArgs;
 
 import java.io.File;

@@ -1,1 +1,2 @@
 com.liferay.blade.cli.gradle.GradleWorkspaceProvider
+com.liferay.blade.cli.maven.MavenWorkspaceProvider

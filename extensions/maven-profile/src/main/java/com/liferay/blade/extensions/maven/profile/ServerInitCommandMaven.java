@@ -20,7 +20,7 @@ import com.liferay.blade.cli.BladeCLI;
 import com.liferay.blade.cli.command.BaseArgs;
 import com.liferay.blade.cli.command.BladeProfile;
 import com.liferay.blade.cli.command.ServerInitCommand;
-import com.liferay.blade.extensions.maven.profile.internal.MavenUtil;
+import com.liferay.blade.cli.util.MavenUtil;
 
 import java.io.File;
 
