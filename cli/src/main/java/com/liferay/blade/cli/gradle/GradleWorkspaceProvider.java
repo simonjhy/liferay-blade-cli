@@ -169,9 +169,9 @@ public class GradleWorkspaceProvider implements WorkspaceProvider {
 	@Override
 	public void resetWorkspaceBladeProperties(File settingsFile) {
 		try {
-			BladeSettings bladeSetting = new BladeSettings(settingsFile);
+			BladeSettings bladeSettings = new BladeSettings(settingsFile);
 
-			bladeSetting.setProfileName("gradle");
+			bladeSettings.setProfileName("gradle");
 
 			File gradlePropertiesFile = getGradlePropertiesFile(getWorkspaceDir(settingsFile));
 
@@ -182,11 +182,11 @@ public class GradleWorkspaceProvider implements WorkspaceProvider {
 			if (!BladeUtil.isEmpty(targetPlatformVersionValue)) {
 				Version targetPlatformVersion = Version.parseVersion(targetPlatformVersionValue);
 
-				bladeSetting.setLiferayVersionDefault(
+				bladeSettings.setLiferayVersionDefault(
 					targetPlatformVersion.getMajor() + "." + targetPlatformVersion.getMinor());
 			}
 
-			bladeSetting.save();
+			bladeSettings.save();
 		}
 		catch (Exception e) {
 		}
