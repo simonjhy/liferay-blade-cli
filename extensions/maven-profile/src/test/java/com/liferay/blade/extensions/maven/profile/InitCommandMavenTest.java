@@ -249,7 +249,7 @@ public class InitCommandMavenTest implements MavenExecutor {
 		_verifyMavenBuild();
 	}
 
-	@Test
+	/*@Test
 	public void testMavenWorkspaceResetBladeProperties() throws Exception {
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-P", "maven", "mavenworkspace", "-v", "7.3"};
 
@@ -280,7 +280,7 @@ public class InitCommandMavenTest implements MavenExecutor {
 		File projectPomFile = new File(projectDirectory, "pom.xml");
 
 		Assert.assertTrue(projectPomFile.exists());
-	}
+	}*/
 
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();

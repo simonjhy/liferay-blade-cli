@@ -16,13 +16,10 @@
 
 package com.liferay.blade.extensions.maven.profile;
 
-import com.liferay.blade.cli.BladeCLI;
-import com.liferay.blade.cli.BladeSettings;
 import com.liferay.blade.cli.WorkspaceProvider;
 import com.liferay.blade.extensions.maven.profile.internal.MavenUtil;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author Christopher Bryan Boyd
@@ -41,7 +38,7 @@ public class MavenWorkspaceProvider implements WorkspaceProvider {
 		return MavenUtil.isWorkspace(dir);
 	}
 
-	@Override
+	/*@Override
 	public void updateWorkspaceProviderSettings(BladeCLI bladeCLI) {
 		try {
 			BladeSettings bladeSetting = new BladeSettings(new File(getWorkspaceDir(bladeCLI), ".blade.properties"));
@@ -53,6 +50,6 @@ public class MavenWorkspaceProvider implements WorkspaceProvider {
 		catch (IOException e) {
 			bladeCLI.error("Unable to persist Maven workspace provider settings.", e);
 		}
-	}
+	}*/
 
 }
