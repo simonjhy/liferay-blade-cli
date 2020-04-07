@@ -44,7 +44,7 @@ public class ProfilesTest {
 	public void testProfileExtension() throws Exception {
 		File workspaceDir = temporaryFolder.newFolder("build", "test", "workspace");
 
-		String[] args = {"--base", workspaceDir.getPath(), "init", "-b", "foo", "-v", "7.3"};
+		String[] args = {"--base", workspaceDir.getPath(), "init", "-P", "foo", "-v", "7.3"};
 
 		BladeTestResults results = TestUtil.runBlade(_rootDir, _extensionsDir, args);
 
@@ -56,7 +56,7 @@ public class ProfilesTest {
 
 		Assert.assertTrue(output, output.contains("NewCommand"));
 
-		args = new String[] {"--base", workspaceDir.getPath(), "deploy", "--watch"};
+		args = new String[] {"--base", workspaceDir.getPath(), "deploy"};
 
 		results = TestUtil.runBlade(_rootDir, _extensionsDir, args);
 

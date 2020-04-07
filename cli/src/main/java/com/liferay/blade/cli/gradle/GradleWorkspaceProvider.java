@@ -182,15 +182,17 @@ public class GradleWorkspaceProvider implements WorkspaceProvider {
 
 			File gradlePropertiesFile = getGradlePropertiesFile(workspaceDir);
 
-			Properties gradelProperties = BladeUtil.getProperties(gradlePropertiesFile);
+			if (gradlePropertiesFile.exists()) {
+				Properties gradelProperties = BladeUtil.getProperties(gradlePropertiesFile);
 
-			String targetPlatformVersionValue = gradelProperties.getProperty(_TARGET_PLATFORM_VERSION_KEY);
+				String targetPlatformVersionValue = gradelProperties.getProperty(_TARGET_PLATFORM_VERSION_KEY);
 
-			if (!BladeUtil.isEmpty(targetPlatformVersionValue)) {
-				Version targetPlatformVersion = Version.parseVersion(targetPlatformVersionValue);
+				if (!BladeUtil.isEmpty(targetPlatformVersionValue)) {
+					Version targetPlatformVersion = Version.parseVersion(targetPlatformVersionValue);
 
-				bladeSettings.setLiferayVersionDefault(
-					targetPlatformVersion.getMajor() + "." + targetPlatformVersion.getMinor());
+					bladeSettings.setLiferayVersionDefault(
+						targetPlatformVersion.getMajor() + "." + targetPlatformVersion.getMinor());
+				}
 			}
 
 			bladeSettings.save();
