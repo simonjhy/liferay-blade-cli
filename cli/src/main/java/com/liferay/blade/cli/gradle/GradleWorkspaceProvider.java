@@ -167,13 +167,17 @@ public class GradleWorkspaceProvider implements WorkspaceProvider {
 	}
 
 	@Override
-	public void resetWorkspaceBladeProperties(File settingsFile) {
+	public void updateWorkspaceProviderSettings(BladeCLI bladeCLI) {
+		File workspaceDir = getWorkspaceDir(bladeCLI);
+
+		File bladeProperties = new File(workspaceDir, ".blade.properties");
+
 		try {
-			BladeSettings bladeSettings = new BladeSettings(settingsFile);
+			BladeSettings bladeSettings = new BladeSettings(bladeProperties);
 
 			bladeSettings.setProfileName("gradle");
 
-			File gradlePropertiesFile = getGradlePropertiesFile(getWorkspaceDir(settingsFile));
+			File gradlePropertiesFile = getGradlePropertiesFile(workspaceDir);
 
 			Properties gradelProperties = BladeUtil.getProperties(gradlePropertiesFile);
 

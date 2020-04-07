@@ -59,7 +59,7 @@ public class BladeSettings {
 		WorkspaceProvider workspaceProvider = bladeCLI.getWorkspaceProvider(_settingsFile);
 
 		if ((workspaceProvider != null) && workspaceProvider.isWorkspace(bladeCLI)) {
-			workspaceProvider.resetWorkspaceBladeProperties(bladeCLI);
+			workspaceProvider.updateWorkspaceProviderSettings(bladeCLI);
 		}
 	}
 

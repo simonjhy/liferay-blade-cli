@@ -52,14 +52,7 @@ public interface WorkspaceProvider {
 
 	public boolean isWorkspace(File dir);
 
-	public default void resetWorkspaceBladeProperties(BladeCLI bladeCLI) {
-		File workspaceDir = getWorkspaceDir(bladeCLI);
-
-		File bladeProperties = new File(workspaceDir, ".blade.properties");
-
-		resetWorkspaceBladeProperties(bladeProperties);
+	public default void updateWorkspaceProviderSettings(BladeCLI bladeCLI) {
 	}
-
-	public void resetWorkspaceBladeProperties(File settingsFile);
 
 }
