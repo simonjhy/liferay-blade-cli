@@ -26,6 +26,7 @@ import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 
 import java.util.Objects;
 import java.util.Properties;
@@ -34,6 +35,8 @@ import java.util.regex.Pattern;
 
 /**
  * @author Christopher Bryan Boyd
+ * @author Simon Jiang
+ * @author Gregory Amerson
  */
 public class GradleWorkspaceProvider implements WorkspaceProvider {
 
@@ -192,7 +195,8 @@ public class GradleWorkspaceProvider implements WorkspaceProvider {
 
 			bladeSettings.save();
 		}
-		catch (Exception e) {
+		catch (IOException e) {
+			bladeCLI.error("Unable to persist Gradle workspace provider settings.", e);
 		}
 	}
 

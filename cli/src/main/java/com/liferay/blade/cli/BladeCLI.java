@@ -176,6 +176,11 @@ public class BladeCLI {
 		error(message);
 	}
 
+	public void error(String message, Throwable error) {
+		error(message);
+		error.printStackTrace(error());
+	}
+
 	public void error(Throwable error) {
 		error(error.getMessage());
 		error.printStackTrace(error());
