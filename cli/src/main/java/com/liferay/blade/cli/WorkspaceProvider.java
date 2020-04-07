@@ -52,12 +52,10 @@ public interface WorkspaceProvider {
 
 	public boolean isWorkspace(File dir);
 
-	public default void resetWorkspaceBladeProperties(BladeCLI blade) {
-		BaseArgs args = blade.getArgs();
+	public default void resetWorkspaceBladeProperties(BladeCLI bladeCLI) {
+		File workspaceDir = getWorkspaceDir(bladeCLI);
 
-		File badeDirectory = new File(args.getBase());
-
-		File bladeProperties = new File(badeDirectory, ".blade.properties");
+		File bladeProperties = new File(workspaceDir, ".blade.properties");
 
 		resetWorkspaceBladeProperties(bladeProperties);
 	}
