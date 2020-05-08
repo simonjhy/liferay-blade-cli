@@ -24,9 +24,12 @@ import com.liferay.blade.cli.util.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,8 +42,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 /**
  * @author David Truong
+ * @author Seiphon Wang
  */
 public class SamplesCommand extends BaseCommand<SamplesArgs> {
 
@@ -120,10 +137,14 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 
 				if (buildType.equals("gradle")) {
 					_updateBuildGradle(dest, bladeRepoName);
+
+					if (!BladeUtil.hasGradleWrapper(dest)) {
+						BladeUtil.addGradleWrapper(dest);
+					}
 				}
 
-				if (!BladeUtil.hasGradleWrapper(dest)) {
-					BladeUtil.addGradleWrapper(dest);
+				if (buildType.equals("maven")) {
+					_updateMavenPom(dest, bladeRepoName);
 				}
 			}
 		}
@@ -169,6 +190,20 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 		File bladeRepoArchive = new File(samplesCachePath.toFile(), bladeRepoArchiveName);
 
 		FileUtil.unzip(bladeRepoArchive, samplesCachePath.toFile(), null);
+	}
+
+	private Node _getFirstChildElementByNodeName(Element element, String nodeName) {
+		NodeList nodeList = element.getElementsByTagName(nodeName);
+
+		if ((nodeList != null) && (nodeList.getLength() > 0)) {
+			Node node = nodeList.item(0);
+
+			if (element.isSameNode(node.getParentNode())) {
+				return nodeList.item(0);
+			}
+		}
+
+		return null;
 	}
 
 	private String _getLiferayVersion(BladeCLI bladeCLI, SamplesArgs samplesArgs) throws IOException {
@@ -355,6 +390,78 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 		}
 
 		Files.write(sampleGradleFile.toPath(), script.getBytes());
+	}
+
+	private void _updateMavenPom(File dir, String bladeRepoName) throws Exception {
+		Path cachePath = _getSamplesCachePath();
+
+		File bladeRepo = new File(cachePath.toFile(), bladeRepoName);
+
+		BladeCLI bladeCLI = getBladeCLI();
+
+		WorkspaceProvider workspaceProvider = bladeCLI.getWorkspaceProvider(dir);
+
+		if (workspaceProvider == null) {
+			File parentPomXmlFile = new File(bladeRepo, "maven/pom.xml");
+
+			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+
+			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+
+			if (parentPomXmlFile.exists()) {
+				Document parentDocument = documentBuilder.parse(parentPomXmlFile);
+
+				Node dMElement = _getFirstChildElementByNodeName(
+					parentDocument.getDocumentElement(), "dependencyManagement");
+
+				File pomXmlFile = new File(dir, "pom.xml");
+
+				Document document = documentBuilder.parse(pomXmlFile);
+
+				Element projectElement = document.getDocumentElement();
+
+				try (OutputStream output = Files.newOutputStream(
+						Paths.get(pomXmlFile.toURI()), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING,
+						StandardOpenOption.DSYNC)) {
+
+					Node newDMElement = document.importNode(dMElement, true);
+
+					projectElement.insertBefore(
+						newDMElement, _getFirstChildElementByNodeName(projectElement, "dependencies"));
+
+					Element parentElement = (Element)_getFirstChildElementByNodeName(projectElement, "parent");
+
+					Node groupIdNode = _getFirstChildElementByNodeName(parentElement, "groupId");
+
+					Node versionNode = _getFirstChildElementByNodeName(parentElement, "version");
+
+					Node artifactIdNode = _getFirstChildElementByNodeName(projectElement, "artifactId");
+
+					projectElement.insertBefore(groupIdNode, artifactIdNode);
+
+					if (_getFirstChildElementByNodeName(projectElement, "version") == null) {
+						projectElement.insertBefore(versionNode, groupIdNode);
+					}
+
+					projectElement.removeChild(parentElement);
+
+					TransformerFactory transformerFactory = TransformerFactory.newInstance();
+
+					Transformer transformer = transformerFactory.newTransformer();
+
+					transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+
+					transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+					transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+					transformer.transform(new DOMSource(document), new StreamResult(output));
+				}
+				catch (Exception e) {
+					bladeCLI.error(e);
+				}
+			}
+		}
 	}
 
 	private static final long _FILE_EXPIRATION_TIME = 604800000;
