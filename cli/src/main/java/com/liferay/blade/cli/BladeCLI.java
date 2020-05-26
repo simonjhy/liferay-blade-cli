@@ -42,6 +42,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
 import java.nio.file.Files;
@@ -668,9 +669,17 @@ public class BladeCLI {
 
 		Class<? extends BaseArgs> baseArgsClass = baseCommand.getArgsClass();
 
-		BaseArgs baseArgs = baseArgsClass.newInstance();
+		try {
+			Constructor<? extends BaseArgs> declaredConstructor = baseArgsClass.getDeclaredConstructor();
 
-		baseCommand.setArgs(baseArgs);
+			BaseArgs baseArgs = declaredConstructor.newInstance();
+
+			baseCommand.setArgs(baseArgs);
+		}
+		catch (Exception exception) {
+			throw new IllegalArgumentException(
+				"Failed to Load base command class " + baseArgsClass.getName(), exception);
+		}
 
 		Parameters parameters = baseArgsClass.getAnnotation(Parameters.class);
 
@@ -770,7 +779,9 @@ public class BladeCLI {
 				Class<? extends Predicate<?>> predicateClass = validateParameters.value();
 
 				if (predicateClass != null) {
-					Predicate<T> predicate = (Predicate<T>)predicateClass.newInstance();
+					Constructor<? extends Predicate<?>> declaredConstructor = predicateClass.getDeclaredConstructor();
+
+					Predicate<T> predicate = (Predicate<T>)declaredConstructor.newInstance();
 
 					if (!predicate.test(args)) {
 						throw new IllegalArgumentException();
@@ -789,7 +800,10 @@ public class BladeCLI {
 		Class<? extends Supplier<Collection<String>>> supplierValidator) {
 
 		try {
-			Supplier<Collection<String>> instance = supplierValidator.newInstance();
+			Constructor<? extends Supplier<Collection<String>>> declaredConstructor =
+				supplierValidator.getDeclaredConstructor();
+
+			Supplier<Collection<String>> instance = declaredConstructor.newInstance();
 
 			Collection<String> options = instance.get();
 
