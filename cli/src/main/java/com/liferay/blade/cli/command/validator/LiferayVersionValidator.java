@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Christopher Bryan Boyd
@@ -36,11 +37,11 @@ public class LiferayVersionValidator implements ValidatorSupplier {
 
 	@Override
 	public Collection<String> get() {
-		Map<String, ProductInfo> productInfoMap = BladeUtil.getProductInfo();
+		Map<String, ProductInfo> productInfos = BladeUtil.getProductInfos(Optional.empty());
 
 		List<String> possibleLiferayProducts = new ArrayList<>();
 
-		productInfoMap.forEach(
+		productInfos.forEach(
 			(productKey, productInfo) -> {
 				if (!BladeUtil.isEmpty(productInfo.getTargetPlatformVersion())) {
 					possibleLiferayProducts.add(productKey);

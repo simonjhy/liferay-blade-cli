@@ -58,6 +58,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.function.Predicate;
@@ -243,7 +244,7 @@ public class BladeUtil {
 		}
 	}
 
-	public static Map<String, ProductInfo> getProductInfo() {
+	public static Map<String, ProductInfo> getProductInfos(Optional<BladeCLI> bladeCLI) {
 		try {
 			DownloadCommand downloadCommand = new DownloadCommand();
 
@@ -267,7 +268,7 @@ public class BladeUtil {
 			}
 		}
 		catch (Exception exception) {
-			exception.printStackTrace();
+			bladeCLI.ifPresent(cli -> cli.error(exception));
 		}
 
 		return Collections.emptyMap();

@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -184,7 +185,7 @@ public class InitCommand extends BaseCommand<InitArgs> {
 
 		projectTemplatesArgs.setGradle(!mavenBuild);
 
-		Map<String, ProductInfo> productInfos = BladeUtil.getProductInfo();
+		Map<String, ProductInfo> productInfos = BladeUtil.getProductInfos(Optional.of(bladeCLI));
 
 		ProductInfo productInfo = productInfos.get(initArgs.getLiferayVersion());
 
