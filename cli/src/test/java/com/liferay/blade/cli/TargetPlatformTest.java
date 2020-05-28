@@ -46,7 +46,9 @@ public class TargetPlatformTest {
 
 		_gradleWorkspaceDir = temporaryFolder.newFolder("gradle-workspace");
 
-		String[] args = {"init", "--base", _gradleWorkspaceDir.getAbsolutePath(), "-v", "7.3"};
+		String[] args = {
+			"init", "--base", _gradleWorkspaceDir.getAbsolutePath(), "-v", BladeTest.TEST_PORTAL_VERSION_7_3
+		};
 
 		TestUtil.runBlade(_gradleWorkspaceDir, _extensionsDir, args);
 

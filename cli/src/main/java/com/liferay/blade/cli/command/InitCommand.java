@@ -196,8 +196,10 @@ public class InitCommand extends BaseCommand<InitArgs> {
 
 		Version targetPlatformVersion = new Version(productInfo.getTargetPlatformVersion());
 
-		projectTemplatesArgs.setLiferayVersion(
+		initArgs.setLiferayVersion(
 			new String(targetPlatformVersion.getMajor() + "." + targetPlatformVersion.getMinor()));
+
+		projectTemplatesArgs.setLiferayVersion(initArgs.getLiferayVersion());
 
 		projectTemplatesArgs.setMaven(mavenBuild);
 		projectTemplatesArgs.setName(name);

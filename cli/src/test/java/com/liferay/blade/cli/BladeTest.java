@@ -36,6 +36,22 @@ import java.util.stream.Stream;
  */
 public class BladeTest extends BladeCLI {
 
+	public static final String TEST_BLADE_PORTAL_VERSION_7_0 = "7.0";
+
+	public static final String TEST_BLADE_PORTAL_VERSION_7_1 = "7.1";
+
+	public static final String TEST_BLADE_PORTAL_VERSION_7_2 = "7.2";
+
+	public static final String TEST_BLADE_PORTAL_VERSION_7_3 = "7.2";
+
+	public static final String TEST_PORTAL_VERSION_7_0 = "dxp-7.0-ga1";
+
+	public static final String TEST_PORTAL_VERSION_7_1 = "dxp-7.1-ga1";
+
+	public static final String TEST_PORTAL_VERSION_7_2 = "dxp-7.2-ga1";
+
+	public static final String TEST_PORTAL_VERSION_7_3 = "dxp-7.2-ga1";
+
 	public static BladeTestBuilder builder() {
 		return new BladeTestBuilder();
 	}

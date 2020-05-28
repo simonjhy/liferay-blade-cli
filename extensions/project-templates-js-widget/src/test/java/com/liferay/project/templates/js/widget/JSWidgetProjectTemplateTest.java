@@ -103,7 +103,9 @@ public class JSWidgetProjectTemplateTest {
 	private void _makeWorkspace(File workspace) throws Exception {
 		File parentFile = workspace.getParentFile();
 
-		String[] args = {"--base", parentFile.getPath(), "init", workspace.getName(), "-v", "7.3"};
+		String[] args = {
+			"--base", parentFile.getPath(), "init", workspace.getName(), "-v", BladeTest.TEST_PORTAL_VERSION_7_3
+		};
 
 		TestUtil.runBlade(workspace, _extensionsDirPath.toFile(), args);
 
@@ -114,7 +116,8 @@ public class JSWidgetProjectTemplateTest {
 
 			properties.load(inputStream);
 
-			Assert.assertEquals("7.3", properties.getProperty("liferay.version.default"));
+			Assert.assertEquals(
+				BladeTest.TEST_BLADE_PORTAL_VERSION_7_3, properties.getProperty("liferay.version.default"));
 		}
 	}
 

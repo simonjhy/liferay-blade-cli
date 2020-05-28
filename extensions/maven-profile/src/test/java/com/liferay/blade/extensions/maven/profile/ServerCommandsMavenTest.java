@@ -16,6 +16,7 @@
 
 package com.liferay.blade.extensions.maven.profile;
 
+import com.liferay.blade.cli.BladeTest;
 import com.liferay.blade.cli.TestUtil;
 
 import java.io.File;
@@ -40,7 +41,9 @@ public class ServerCommandsMavenTest {
 
 		File workspaceDir = temporaryFolder.newFolder("build", "test", "workspace");
 
-		String[] args = {"--base", workspaceDir.getPath(), "init", "-f", "-P", "maven", "-v", "7.3"};
+		String[] args = {
+			"--base", workspaceDir.getPath(), "init", "-f", "-P", "maven", "-v", BladeTest.TEST_PORTAL_VERSION_7_3
+		};
 
 		TestUtil.runBlade(workspaceDir, extensionsDir, args);
 
