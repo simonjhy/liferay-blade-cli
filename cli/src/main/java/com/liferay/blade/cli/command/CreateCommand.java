@@ -58,6 +58,7 @@ import java.util.Properties;
  * @author David Truong
  * @author Christopher Bryan Boyd
  * @author Charles Wu
+ * @author Seiphon Wang
  */
 public class CreateCommand extends BaseCommand<CreateArgs> {
 
@@ -71,6 +72,16 @@ public class CreateCommand extends BaseCommand<CreateArgs> {
 	@Override
 	public void execute() throws Exception {
 		CreateArgs createArgs = getArgs();
+
+		File argsDir = createArgs.getDir();
+
+		if (!isWorkspace(argsDir)) {
+			_addError(
+				"Create",
+				"The current directory is not available, please point the directory to a Liferay workspace project, or invoke the blade inside a Liferay workspace project.");
+
+			return;
+		}
 
 		String template = createArgs.getTemplate();
 
@@ -93,8 +104,6 @@ public class CreateCommand extends BaseCommand<CreateArgs> {
 		}
 
 		File dir;
-
-		File argsDir = createArgs.getDir();
 
 		if (argsDir != null) {
 			dir = new File(argsDir.getAbsolutePath());
