@@ -22,6 +22,7 @@ import com.liferay.blade.cli.BladeCLI;
 import com.liferay.blade.cli.WorkspaceProvider;
 import com.liferay.blade.cli.command.BaseArgs;
 import com.liferay.blade.cli.util.BladeUtil;
+import com.liferay.blade.gradle.tooling.ProjectInfo;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -56,6 +57,35 @@ public class GradleWorkspaceProvider implements WorkspaceProvider {
 		return new File(getWorkspaceDir(dir), _GRADLE_PROPERTIES_FILE_NAME);
 	}
 
+	@Override
+	public String getLiferayVersion(File dir) {
+		try {
+			ProjectInfo projectInfo = GradleTooling.loadProjectInfo(dir.toPath());
+
+			if (projectInfo != null) {
+				String targetPlatformVersionString = projectInfo.getTargetPlatformVersion();
+
+				int dashPostion = targetPlatformVersionString.indexOf("-");
+
+				Version targetPlatformVersion = null;
+
+				if (dashPostion != -1) {
+					targetPlatformVersion = Version.parseVersion(targetPlatformVersionString.substring(0, dashPostion));
+				}
+				else {
+					targetPlatformVersion = Version.parseVersion(targetPlatformVersionString);
+				}
+
+				return new String(targetPlatformVersion.getMajor() + "." + targetPlatformVersion.getMinor());
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 	public File getSettingGradleFile(File dir) {
 		return new File(getWorkspaceDir(dir), _SETTINGS_GRADLE_FILE_NAME);
 	}
@@ -86,6 +116,7 @@ public class GradleWorkspaceProvider implements WorkspaceProvider {
 		return null;
 	}
 
+	@Override
 	public boolean isDependencyManagementEnabled(File dir) {
 		if (!isWorkspace(dir)) {
 			return false;
