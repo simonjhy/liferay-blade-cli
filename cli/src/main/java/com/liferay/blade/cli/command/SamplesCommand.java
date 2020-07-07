@@ -94,9 +94,16 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 
 		File bladeRepo = new File(cachePath.toFile(), bladeRepoName);
 
+		File samples = null;
+
 		String buildType = samplesArgs.getProfileName();
 
-		File samples = new File(bladeRepo, buildType);
+		if (_isWorkspaceDir()) {
+			samples = new File(bladeRepo, "liferay-workspace");
+		}
+		else {
+			samples = new File(bladeRepo, buildType);
+		}
 
 		SamplesVisitor visitor = new SamplesVisitor();
 
@@ -195,6 +202,18 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 		return samplesCachePath;
 	}
 
+	private boolean _isWorkspaceDir() {
+		BladeCLI bladeCLI = getBladeCLI();
+
+		SamplesArgs samplesArgs = getArgs();
+
+		if (samplesArgs.getDir() != null) {
+			return bladeCLI.isWorkspaceDir(samplesArgs.getDir());
+		}
+
+		return bladeCLI.isWorkspace();
+	}
+
 	private void _listSamples(String bladeRepoName) throws IOException {
 		BladeCLI bladeCLI = getBladeCLI();
 		SamplesArgs samplesArgs = getArgs();
@@ -203,9 +222,16 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 
 		File bladeRepo = new File(cachePath.toFile(), bladeRepoName);
 
+		File samples = null;
+
 		String buildType = samplesArgs.getProfileName();
 
-		File samples = new File(bladeRepo, buildType);
+		if (_isWorkspaceDir()) {
+			samples = new File(bladeRepo, "liferay-workspace");
+		}
+		else {
+			samples = new File(bladeRepo, buildType);
+		}
 
 		Map<String, List<Path>> samplesMap = new HashMap<>();
 
@@ -339,7 +365,7 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 
 		WorkspaceProvider workspaceProvider = bladeCLI.getWorkspaceProvider(dir);
 
-		if (workspaceProvider == null) {
+		if ((workspaceProvider == null) && !_isWorkspaceDir()) {
 			File parentBuildGradleFile = new File(bladeRepo, "gradle/build.gradle");
 
 			String parentBuildScript = _parseGradleScript(BladeUtil.read(parentBuildGradleFile), "buildscript", false);
