@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -141,6 +142,14 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 	}
 
 	private boolean _downloadBladeRepoIfNeeded(String bladeRepoArchiveName, String bladeRepoUrl) throws Exception {
+		SamplesArgs samplesArgs = getArgs();
+
+		boolean ignore = samplesArgs.getIgnore();
+
+		if (Objects.nonNull(ignore) && ignore) {
+			return false;
+		}
+
 		Path cachePath = _getSamplesCachePath();
 
 		File bladeRepoArchive = new File(cachePath.toFile(), bladeRepoArchiveName);
