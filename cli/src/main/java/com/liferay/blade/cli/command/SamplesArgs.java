@@ -31,6 +31,10 @@ public class SamplesArgs extends BaseArgs {
 		return _dir;
 	}
 
+	public boolean getIgnore() {
+		return _ignore;
+	}
+
 	public String getLiferayVersion() {
 		return _liferayVersion;
 	}
@@ -41,6 +45,9 @@ public class SamplesArgs extends BaseArgs {
 
 	@Parameter(description = "The directory where to create the new project.", names = {"-d", "--dir"})
 	private File _dir;
+
+	@Parameter(description = "Do not cheek downloading blade repo if needed.", names = "--ignore")
+	private boolean _ignore;
 
 	@Parameter(
 		description = "The version of Liferay to target when downloading the sample project. Available options are 7.0, 7.1. (default 7.1).",
