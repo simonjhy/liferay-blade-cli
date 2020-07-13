@@ -21,10 +21,11 @@ import com.liferay.blade.cli.BladeSettings;
 import com.liferay.blade.cli.WorkspaceProvider;
 import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.FileUtil;
+import com.liferay.portal.tools.bundle.support.commands.DownloadCommand;
 
 import java.io.File;
 import java.io.IOException;
-
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -171,7 +172,16 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 		}
 
 		if (!bladeRepoArchive.exists()) {
-			BladeUtil.downloadLink(bladeRepoUrl, bladeRepoArchive.toPath());
+			DownloadCommand downloadCommand = new DownloadCommand();
+
+			downloadCommand.setCacheDir(_getSamplesCachePath().toFile());
+			downloadCommand.setPassword(null);
+			downloadCommand.setToken(false);
+			downloadCommand.setUrl(new URL(bladeRepoUrl));
+			downloadCommand.setUserName(null);
+			downloadCommand.setQuiet(true);
+
+			downloadCommand.execute();
 
 			return true;
 		}
