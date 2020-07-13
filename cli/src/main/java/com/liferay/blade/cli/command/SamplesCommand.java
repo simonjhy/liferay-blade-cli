@@ -17,13 +17,15 @@
 package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.BladeCLI;
-import com.liferay.blade.cli.BladeSettings;
 import com.liferay.blade.cli.WorkspaceProvider;
 import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.FileUtil;
+import com.liferay.portal.tools.bundle.support.commands.DownloadCommand;
 
 import java.io.File;
 import java.io.IOException;
+
+import java.net.URL;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -171,7 +173,16 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 		}
 
 		if (!bladeRepoArchive.exists()) {
-			BladeUtil.downloadLink(bladeRepoUrl, bladeRepoArchive.toPath());
+			DownloadCommand downloadCommand = new DownloadCommand();
+
+			downloadCommand.setCacheDir(_getSamplesCachePath().toFile());
+			downloadCommand.setPassword(null);
+			downloadCommand.setToken(false);
+			downloadCommand.setUrl(new URL(bladeRepoUrl));
+			downloadCommand.setUserName(null);
+			downloadCommand.setQuiet(true);
+
+			downloadCommand.execute();
 
 			return true;
 		}
@@ -191,9 +202,15 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 		String liferayVersion = samplesArgs.getLiferayVersion();
 
 		if (liferayVersion == null) {
-			BladeSettings bladeSettings = bladeCLI.getBladeSettings();
+			File baseDir = samplesArgs.getBase();
 
-			liferayVersion = bladeSettings.getLiferayVersionDefault();
+			WorkspaceProvider workspaceProvider = bladeCLI.getWorkspaceProvider(baseDir);
+
+			liferayVersion = workspaceProvider.getLiferayVersion(baseDir);
+
+			if (liferayVersion == null) {
+				liferayVersion = "7.3";
+			}
 		}
 
 		return liferayVersion;
@@ -397,6 +414,6 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 	private static final File _USER_HOME_DIR = new File(System.getProperty("user.home"));
 
 	private static final Collection<String> _topLevelFolders = Arrays.asList(
-		"apps", "extensions", "overrides", "themes");
+		"apps", "extensions", "overrides", "themes", "wars");
 
 }

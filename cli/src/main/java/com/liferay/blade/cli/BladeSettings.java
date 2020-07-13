@@ -42,14 +42,6 @@ public class BladeSettings {
 		}
 	}
 
-	public String getLiferayVersionDefault() {
-		if (_properties.getProperty("liferay.version.default") != null) {
-			return _properties.getProperty("liferay.version.default");
-		}
-
-		return "7.3";
-	}
-
 	public String getProfileName() {
 		return _properties.getProperty("profile.name");
 	}
