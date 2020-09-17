@@ -101,6 +101,22 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 
 		Properties gradleProperties = workspaceProviderGradle.getGradleProperties(projectDir);
 
+		String productKey = gradleProperties.getProperty("liferay.workspace.product");
+
+		if (!Objects.isNull(productKey)) {
+			try {
+				String product = productKey.substring(0, productKey.indexOf("-"));
+
+				if (Objects.equals(product, "commerce")) {
+					product = "dxp";
+				}
+
+				convertArgs.setProduct(product);
+			}
+			catch (Exception e) {
+			}
+		}
+
 		final File pluginsSdkDir = _getPluginsSdkDir(convertArgs, projectDir, gradleProperties);
 
 		_assertTrue("pluginsSdkDir is null: %s", pluginsSdkDir != null);
@@ -1159,6 +1175,10 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 		createArgs.setName("war-portlet");
 		createArgs.setQuiet(baseArgs.isQuiet());
 
+		ConvertArgs convertArgs = getArgs();
+
+		createArgs.setProduct(convertArgs.getProduct());
+
 		CreateCommand createCommand = new CreateCommand();
 
 		createCommand.setArgs(createArgs);
@@ -1214,12 +1234,13 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 	private static final Map<String, GAV> _migratedDependencies71 = new HashMap<>();
 	private static final Map<String, GAV> _migratedDependencies72 = new HashMap<>();
 	private static final Map<String, GAV> _migratedDependencies73 = new HashMap<>();
-	private static final Map<String, String> _portalClasspathDependenciesMap = new HashMap<>();
 	{
 		_loadMigratedDependencies("/migrated-dependencies-7.1.properties", _migratedDependencies71);
 		_loadMigratedDependencies("/migrated-dependencies-7.2.properties", _migratedDependencies72);
 		_loadMigratedDependencies("/migrated-dependencies-7.3.properties", _migratedDependencies73);
 	}
+
+	private static final Map<String, String> _portalClasspathDependenciesMap = new HashMap<>();
 
 	private static class GAV {
 

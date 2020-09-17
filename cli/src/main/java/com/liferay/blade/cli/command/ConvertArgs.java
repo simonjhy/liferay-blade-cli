@@ -64,6 +64,10 @@ public class ConvertArgs extends BaseArgs {
 		return _name;
 	}
 
+	public String getProduct() {
+		return _product;
+	}
+
 	public File getSource() {
 		return _source;
 	}
@@ -88,6 +92,10 @@ public class ConvertArgs extends BaseArgs {
 		_liferayVersion = liferayVersion;
 	}
 
+	public void setProduct(String product) {
+		_product = product;
+	}
+
 	@Parameter(description = "Migrate all plugin projects", names = {"-a", "--all"})
 	private boolean _all;
 
@@ -102,6 +110,9 @@ public class ConvertArgs extends BaseArgs {
 
 	@Parameter(description = "[name]")
 	private List<String> _name = new ArrayList<>();
+
+	@Parameter(description = "The option for Liferay Platform product. (portal)|(dxp)", names = "--product")
+	private String _product = "portal";
 
 	@Parameter(description = "Remove source plugin projects, default value is true", names = {"-r", "--remove"})
 	private boolean _removeSource = false;

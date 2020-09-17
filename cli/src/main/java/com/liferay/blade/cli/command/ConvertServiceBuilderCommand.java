@@ -31,6 +31,7 @@ import java.nio.file.Path;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Stream;
 
@@ -63,6 +64,22 @@ public class ConvertServiceBuilderCommand implements FilesSupport {
 		File projectDir = gradleWorkspaceProvider.getWorkspaceDir(_bladeCLI);
 
 		Properties gradleProperties = gradleWorkspaceProvider.getGradleProperties(projectDir);
+
+		String productKey = gradleProperties.getProperty("liferay.workspace.product");
+
+		if (!Objects.isNull(productKey)) {
+			try {
+				String product = productKey.substring(0, productKey.indexOf("-"));
+
+				if (Objects.equals(product, "commerce")) {
+					product = "dxp";
+				}
+
+				_convertArgs.setProduct(product);
+			}
+			catch (Exception e) {
+			}
+		}
 
 		String modulesDirPath = null;
 
@@ -161,6 +178,7 @@ public class ConvertServiceBuilderCommand implements FilesSupport {
 		projectTemplatesArgs.setName(sbProjectFileName.toString());
 		projectTemplatesArgs.setPackageName(oldServiceBuilderXml.getPackagePath());
 		projectTemplatesArgs.setTemplate("service-builder");
+		projectTemplatesArgs.setProduct(_convertArgs.getProduct());
 
 		createCommand.execute(projectTemplatesArgs);
 
