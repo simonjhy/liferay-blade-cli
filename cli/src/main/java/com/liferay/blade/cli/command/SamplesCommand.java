@@ -17,13 +17,15 @@
 package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.BladeCLI;
-import com.liferay.blade.cli.BladeSettings;
 import com.liferay.blade.cli.WorkspaceProvider;
 import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.FileUtil;
+import com.liferay.portal.tools.bundle.support.commands.DownloadCommand;
 
 import java.io.File;
 import java.io.IOException;
+
+import java.net.URL;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,6 +38,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -94,9 +97,16 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 
 		File bladeRepo = new File(cachePath.toFile(), bladeRepoName);
 
+		File samples = null;
+
 		String buildType = samplesArgs.getProfileName();
 
-		File samples = new File(bladeRepo, buildType);
+		if (_isWorkspaceDir()) {
+			samples = new File(bladeRepo, "liferay-workspace");
+		}
+		else {
+			samples = new File(bladeRepo, buildType);
+		}
 
 		SamplesVisitor visitor = new SamplesVisitor();
 
@@ -134,13 +144,21 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 	}
 
 	private boolean _downloadBladeRepoIfNeeded(String bladeRepoArchiveName, String bladeRepoUrl) throws Exception {
+		SamplesArgs samplesArgs = getArgs();
+
+		boolean ignore = samplesArgs.getIgnore();
+
+		if (Objects.nonNull(ignore) && ignore) {
+			return false;
+		}
+
 		Path cachePath = _getSamplesCachePath();
 
 		File bladeRepoArchive = new File(cachePath.toFile(), bladeRepoArchiveName);
 
-		Date now = new Date();
-
 		if (bladeRepoArchive.exists()) {
+			Date now = new Date();
+
 			long diff = now.getTime() - bladeRepoArchive.lastModified();
 
 			boolean old = false;
@@ -155,7 +173,16 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 		}
 
 		if (!bladeRepoArchive.exists()) {
-			BladeUtil.downloadLink(bladeRepoUrl, bladeRepoArchive.toPath());
+			DownloadCommand downloadCommand = new DownloadCommand();
+
+			downloadCommand.setCacheDir(_getSamplesCachePath().toFile());
+			downloadCommand.setPassword(null);
+			downloadCommand.setToken(false);
+			downloadCommand.setUrl(new URL(bladeRepoUrl));
+			downloadCommand.setUserName(null);
+			downloadCommand.setQuiet(true);
+
+			downloadCommand.execute();
 
 			return true;
 		}
@@ -175,9 +202,15 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 		String liferayVersion = samplesArgs.getLiferayVersion();
 
 		if (liferayVersion == null) {
-			BladeSettings bladeSettings = bladeCLI.getBladeSettings();
+			File baseDir = samplesArgs.getBase();
 
-			liferayVersion = bladeSettings.getLiferayVersionDefault();
+			WorkspaceProvider workspaceProvider = bladeCLI.getWorkspaceProvider(baseDir);
+
+			liferayVersion = workspaceProvider.getLiferayVersion(baseDir);
+
+			if (liferayVersion == null) {
+				liferayVersion = "7.3";
+			}
 		}
 
 		return liferayVersion;
@@ -195,6 +228,18 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 		return samplesCachePath;
 	}
 
+	private boolean _isWorkspaceDir() {
+		BladeCLI bladeCLI = getBladeCLI();
+
+		SamplesArgs samplesArgs = getArgs();
+
+		if (samplesArgs.getDir() != null) {
+			return bladeCLI.isWorkspaceDir(samplesArgs.getDir());
+		}
+
+		return bladeCLI.isWorkspace();
+	}
+
 	private void _listSamples(String bladeRepoName) throws IOException {
 		BladeCLI bladeCLI = getBladeCLI();
 		SamplesArgs samplesArgs = getArgs();
@@ -203,9 +248,16 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 
 		File bladeRepo = new File(cachePath.toFile(), bladeRepoName);
 
+		File samples = null;
+
 		String buildType = samplesArgs.getProfileName();
 
-		File samples = new File(bladeRepo, buildType);
+		if (_isWorkspaceDir()) {
+			samples = new File(bladeRepo, "liferay-workspace");
+		}
+		else {
+			samples = new File(bladeRepo, buildType);
+		}
 
 		Map<String, List<Path>> samplesMap = new HashMap<>();
 
@@ -339,7 +391,7 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 
 		WorkspaceProvider workspaceProvider = bladeCLI.getWorkspaceProvider(dir);
 
-		if (workspaceProvider == null) {
+		if ((workspaceProvider == null) && !_isWorkspaceDir()) {
 			File parentBuildGradleFile = new File(bladeRepo, "gradle/build.gradle");
 
 			String parentBuildScript = _parseGradleScript(BladeUtil.read(parentBuildGradleFile), "buildscript", false);
@@ -362,6 +414,6 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 	private static final File _USER_HOME_DIR = new File(System.getProperty("user.home"));
 
 	private static final Collection<String> _topLevelFolders = Arrays.asList(
-		"apps", "extensions", "overrides", "themes");
+		"apps", "extensions", "overrides", "themes", "wars");
 
 }

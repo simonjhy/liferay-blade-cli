@@ -138,6 +138,7 @@ public class GradleExec {
 
 	private String _getGradleExecutable(File dir) throws NoSuchElementException {
 		File gradlew = BladeUtil.getGradleWrapper(dir);
+
 		String executable = "gradle";
 
 		BaseArgs baseArgs = _blade.getArgs();

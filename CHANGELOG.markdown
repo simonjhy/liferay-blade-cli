@@ -1,5 +1,170 @@
 # Liferay Blade CLI Change Log
 
+## 4.0.4 - 2020-09-22
+
+### Commits
+- [BLADE-599] handle single digit dates (c5c457600f)
+- [BLADE-599] sort qualifiers by release date (d9f1c11bb4)
+- [BLADE-597] Add test cases (42e113d009)
+- [BLADE-597] Only support "portal" for product value in maven (cc37775173)
+- [BLADE-597] don't truncate the liferay version (6d8ea1ae14)
+- [BLADE-597] reduce chances of NPE (55d020be39)
+- [BLADE-597] Simplify logic (9666ba500d)
+- [BLADE-597] Add product to MavenWorkspaceProvider (9bc59a7d1f)
+- [BLADE-597] Try to get product value from Target platform (b8b7681d4c)
+- [BLADE-598] Add product to Init command (c673aaf9d7)
+- [BLADE-597] Fix tests (eebe041eca)
+- [BLADE-597] Get product value from properties (5b8385049c)
+- [BLADE-597] Look up product value in gradle.properties (ceac14adbe)
+- [BLADE-598] Add product parameter option for ConvertCommand (73a3be0f55)
+- [LPS-120852] switch to compile configuration (fb96931a5b)
+- [LPS-120852] Add 7.2 test case (1e2cd8b946)
+- [LPS-120852] Does not support jdk 11 (490a91f944)
+- [LPS-120852] Use GA5 in testing (690fe278ba)
+- [LPS-120852] Add tests to verify resolve task in workspace (502d1806d7)
+- [BLADE-596] make test stable on java11 (8dfb4f4daa)
+- [BLADE-596] simplify (ba238acd62)
+- [BLADE-596] rename (4febdba74b)
+- [BLADE-596] Fix propertiesLocator tests (1c34fcc4fd)
+- [BLADE-596] add field back for tests (7451bd3b2b)
+- [BLADE-596] Refactor the output and the code to make them simplier
+(156119df6d)
+- [BLADE-596] Refactor, we do not need to re-evaluate exceptions (989b3210be)
+- [BLADE-596] Normalize the properties to do not load wrong lines as properties
+(09fbd71c85)
+- [BLADE-596] Upgrade Processes properties are not longer needed (7ec1ad3451)
+- [LPS-120852] Add resolve task to workspace projects (632855874a)
+- [BLADE-593] empty string is the same as no value (80771d84fc)
+- [BLADE-593] Use Optional<String> (c33cd727f1)
+- [BLADE-593] Rename method (abb0d20405)
+- [BLADE-593] Use Optional<String> (8a6b87294f)
+- [BLADE-593] Don't prompt for Liferay Version (7ad7b4b426)
+- [BLADE-593] Update Test (8ec2c9a2fd)
+- [BLADE-593] Refactor (2d44491f88)
+- [BLADE-539] Print more helpful message (85e565eb0b)
+- [BLADE-593] Fix test (7acd94f416)
+- [BLADE-593] Out of scope for this pull (7bc0be51d9)
+- [BLADE-539] Fix Test (3c6869bba1)
+- [BLADE-593] Get product value from Workspace Provider (1bb9399829)
+- [BLADE-593] Add Create Tests from docker property (07862548c3)
+- [BLADE-593] Use constants when possible (60290b97ba)
+- [BLADE-593] Add tests (83d5e0fabd)
+- [BLADE-593] Capture dxp and portal images (bb367ca9af)
+- [BLADE-539] Refactor to WorkspaceProvider (1be2aa28ca)
+- [BLADE-539] Always take user input over workspace setting (11874fe6a3)
+- [BLADE-593] : create throws NPE from within a dxpcloud provisioned Liferay
+workspace. Fix NPE, prompt to ask user for selecting the liferay version if
+liferay.workspace.product is missing, and add test case. (f0af778600)
+- [LPS-120734] Set product argument (915fbd5144)
+- [LPS-120734] Add product parameter option (cdf70b8d79)
+- [LPS-120734] Add DXP Default Test (a439d229a6)
+- [LPS-120734] Update test (03132df224)
+- [LPS-120734] Only use release.portal.api >= 7.3 (e7d0ab3602)
+
+### Dependencies
+- [BLADE-600] Update the com.liferay.blade.extensions.maven.profile dependency
+to version 1.0.21.
+- [BLADE-600] Update the com.liferay.project.templates.js.theme dependency to
+version 1.0.4.
+- [BLADE-600] Update the com.liferay.project.templates.js.widget dependency to
+version 1.0.4.
+- [LPS-120852] Update the com.liferay.project.templates dependency to version
+5.0.89.
+- [LPS-120734] Update the com.liferay.project.templates dependency to version
+5.0.87.
+- [BLADE-595] Update the com.liferay.blade.extensions.maven.profile dependency
+to version 1.0.21-SNAPSHOT.
+- [BLADE-595] Update the com.liferay.project.templates.js.theme dependency to
+version 1.0.4-SNAPSHOT.
+- [BLADE-595] Update the com.liferay.project.templates.js.widget dependency to
+version 1.0.4-SNAPSHOT.
+
+## 4.0.3 - 2020-09-03
+
+### Commits
+- [BLADE-594] Temporarily ignore test (28a92d24b4)
+- [BLADE-594] Fix verify scripts as well (a946f49108)
+- [BLADE-594] move earlier (467276deaa)
+- [BLADE-594] Add timeout for verify job (834fa6d732)
+- [BLADE-594] fix permissions (1e45cd6edd)
+- [BLADE-594] remove debug (09712373b0)
+- [BLADE-594] simplify (55feb88e87)
+- [BLADE-594] Switch to -bin for publish (f8f31b9cd3)
+- [LPS-120193] Add Liferay Nexus to workspace pom (90a789433d)
+- [LPS-119853] Add Extension args to CreateArgs (d9a266733a)
+- [LPS-119853] Add 73 Form Field React Test (aaafadb68e)
+- [LPS-119853] Add 7.3 React option for Form Field template (dd68869956)
+- [BLADE-592] Update Tests (6018647ab4)
+- [BLADE-592] Use release.portal.api in blade (961bb56ac4)
+
+### Dependencies
+- [BLADE-595] Update the com.liferay.blade.extensions.maven.profile dependency
+to version 1.0.20.
+- [BLADE-595] Update the com.liferay.project.templates.js.theme dependency to
+version 1.0.3.
+- [BLADE-595] Update the com.liferay.project.templates.js.widget dependency to
+version 1.0.3.
+- [LPS-120193] Update the com.liferay.project.templates dependency to version
+5.0.85.
+- [LPS-119853] Update the com.liferay.project.templates dependency to version
+5.0.81.
+- [BLADE-592] Update the com.liferay.project.templates dependency to version
+5.0.79.
+- [BLADE-591] Update the com.liferay.blade.extensions.maven.profile dependency
+to version 1.0.20-SNAPSHOT.
+- [BLADE-591] Update the com.liferay.project.templates.js.theme dependency to
+version 1.0.3-SNAPSHOT.
+- [BLADE-591] Update the com.liferay.project.templates.js.widget dependency to
+version 1.0.3-SNAPSHOT.
+
+## 4.0.2 - 2020-08-21
+
+### Commits
+- [LPS-105873] Check file output instead of buildTask outcome (d017cd6202)
+- [LPS-105873] More robust (a4f5d32448)
+- [LPS-105873] Only need major.minor versions for CreateCommand (516498bbdd)
+- [LPS-105873] Updated promoted list (06a8a9e450)
+- [LPS-105873] rc8 (0fad3d44c7)
+- [LPS-105873] Rename confusing test (5d2f4a174d)
+- [LPS-105873] Use fixed version of Project Templates (cedab4aec4)
+- [LPS-105873] GA5 is now promoted (06a814d89a)
+- [LPS-105873] Add Liferay Nexus Repo to tests (0ed324b556)
+- [LPS-105873] fix SF (fb958c7dab)
+- [LPS-105873] Update Test (3d02b98834)
+- [LPS-105873] Add project templates change that supports workspace with yarn
+support (6a588c4d97)
+- [BLADE-589] cache the product_info map (5879c95f71)
+- [BLADE-589] fix error message (37ff8da63a)
+- [BLADE-589] fix tests (f6861c5ebc)
+- [BLADE-589] Remove blade default product key list (6e6526cd9f)
+- [BLADE-563] fix test (48caef6844)
+- [BLADE-563] download product_info.json instead of directly embedding
+(607e375843)
+- [BLADE-563] make safer (be47f8fad3)
+- [BLADE-563] print errors is using --trace for getting product_info
+(ec9bc4e52a)
+- [BLADE-563] sort (afc28349b5)
+- [BLADE-563] Blade init -v should work without internet (7c005c8e49)
+- [BLADE-588] remove possible nulls (c94737a570)
+
+### Dependencies
+- [BLADE-591] Update the com.liferay.blade.extensions.maven.profile dependency
+to version 1.0.19.
+- [BLADE-591] Update the com.liferay.project.templates.js.theme dependency to
+version 1.0.2.
+- [BLADE-591] Update the com.liferay.project.templates.js.widget dependency to
+version 1.0.2.
+- [LPS-105873] Update the com.liferay.project.templates dependency to version
+5.0.77.
+- [LPS-105873] Update the com.liferay.project.templates dependency to version
+5.0.75.
+- [BLADE-587] Update the com.liferay.blade.extensions.maven.profile dependency
+to version 1.0.19-SNAPSHOT.
+- [BLADE-587] Update the com.liferay.project.templates.js.theme dependency to
+version 1.0.2-SNAPSHOT.
+- [BLADE-587] Update the com.liferay.project.templates.js.widget dependency to
+version 1.0.2-SNAPSHOT.
+
 ## 4.0.1 - 2020-07-29
 
 ### Commits
@@ -1658,6 +1823,7 @@ maintainability (7f9bc3f45e)
 [BLADE-555]: https://issues.liferay.com/browse/BLADE-555
 [BLADE-557]: https://issues.liferay.com/browse/BLADE-557
 [BLADE-558]: https://issues.liferay.com/browse/BLADE-558
+[BLADE-563]: https://issues.liferay.com/browse/BLADE-563
 [BLADE-564]: https://issues.liferay.com/browse/BLADE-564
 [BLADE-565]: https://issues.liferay.com/browse/BLADE-565
 [BLADE-566]: https://issues.liferay.com/browse/BLADE-566
@@ -1673,6 +1839,18 @@ maintainability (7f9bc3f45e)
 [BLADE-582]: https://issues.liferay.com/browse/BLADE-582
 [BLADE-585]: https://issues.liferay.com/browse/BLADE-585
 [BLADE-587]: https://issues.liferay.com/browse/BLADE-587
+[BLADE-588]: https://issues.liferay.com/browse/BLADE-588
+[BLADE-589]: https://issues.liferay.com/browse/BLADE-589
+[BLADE-591]: https://issues.liferay.com/browse/BLADE-591
+[BLADE-592]: https://issues.liferay.com/browse/BLADE-592
+[BLADE-593]: https://issues.liferay.com/browse/BLADE-593
+[BLADE-594]: https://issues.liferay.com/browse/BLADE-594
+[BLADE-595]: https://issues.liferay.com/browse/BLADE-595
+[BLADE-596]: https://issues.liferay.com/browse/BLADE-596
+[BLADE-597]: https://issues.liferay.com/browse/BLADE-597
+[BLADE-598]: https://issues.liferay.com/browse/BLADE-598
+[BLADE-599]: https://issues.liferay.com/browse/BLADE-599
+[BLADE-600]: https://issues.liferay.com/browse/BLADE-600
 [IDE-2756]: https://issues.liferay.com/browse/IDE-2756
 [IDE-3043]: https://issues.liferay.com/browse/IDE-3043
 [IDE-3167]: https://issues.liferay.com/browse/IDE-3167
@@ -1684,6 +1862,7 @@ maintainability (7f9bc3f45e)
 [LPS-98820]: https://issues.liferay.com/browse/LPS-98820
 [LPS-105502]: https://issues.liferay.com/browse/LPS-105502
 [LPS-105747]: https://issues.liferay.com/browse/LPS-105747
+[LPS-105873]: https://issues.liferay.com/browse/LPS-105873
 [LPS-108630]: https://issues.liferay.com/browse/LPS-108630
 [LPS-110131]: https://issues.liferay.com/browse/LPS-110131
 [LPS-111461]: https://issues.liferay.com/browse/LPS-111461
@@ -1691,6 +1870,10 @@ maintainability (7f9bc3f45e)
 [LPS-114088]: https://issues.liferay.com/browse/LPS-114088
 [LPS-114169]: https://issues.liferay.com/browse/LPS-114169
 [LPS-114909]: https://issues.liferay.com/browse/LPS-114909
+[LPS-119853]: https://issues.liferay.com/browse/LPS-119853
+[LPS-120193]: https://issues.liferay.com/browse/LPS-120193
+[LPS-120734]: https://issues.liferay.com/browse/LPS-120734
+[LPS-120852]: https://issues.liferay.com/browse/LPS-120852
 [LRDOCS-3688]: https://issues.liferay.com/browse/LRDOCS-3688
 [LRDOCS-5843]: https://issues.liferay.com/browse/LRDOCS-5843
 [LRDOCS-7448]: https://issues.liferay.com/browse/LRDOCS-7448
