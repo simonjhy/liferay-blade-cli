@@ -24,6 +24,7 @@ import com.liferay.blade.cli.BladeTest;
 import com.liferay.blade.cli.BladeTestResults;
 import com.liferay.blade.cli.GradleRunnerUtil;
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.WorkspaceConstants;
 import com.liferay.blade.cli.util.FileUtil;
 import com.liferay.project.templates.ProjectTemplates;
 
@@ -56,6 +57,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.testkit.runner.BuildTask;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -753,8 +755,9 @@ public class CreateCommandTest {
 
 		String[] gradleArgs = {"create", "--base", workspace.getAbsolutePath(), "-t", "spring-mvc-portlet", "foo"};
 
-		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-			("springportletmvc" + System.lineSeparator() + "jsp" + System.lineSeparator()).getBytes());
+		String interactiveModeInput = "springportletmvc" + System.lineSeparator() + "jsp" + System.lineSeparator();
+
+		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(interactiveModeInput.getBytes());
 
 		TestUtil.runBlade(workspace, _extensionsDir, byteArrayInputStream, gradleArgs);
 
@@ -941,6 +944,55 @@ public class CreateCommandTest {
 	}
 
 	@Test
+	public void testCreateWorkspaceDXPLiferayVersionFromDocker() throws Exception {
+		File workspace73 = new File(_rootDir, "workspace73");
+
+		_makeWorkspace(workspace73);
+
+		File gradleProperties = new File(workspace73, "gradle.properties");
+
+		Files.deleteIfExists(gradleProperties.toPath());
+
+		String dockerImageProperty =
+			WorkspaceConstants.DEFAULT_LIFERAY_DOCKER_IMAGE_PROPERTY + "=liferay/dxp:7.3.10-ep5-202008181831";
+
+		Files.createFile(gradleProperties.toPath());
+
+		Files.write(gradleProperties.toPath(), dockerImageProperty.getBytes(), StandardOpenOption.APPEND);
+
+		String[] sevenThreeArgs = {"--base", workspace73.getAbsolutePath(), "create", "-t", "portlet", "seven-three"};
+
+		TestUtil.runBlade(workspace73, _extensionsDir, sevenThreeArgs);
+
+		File buildGradle = new File(workspace73, "seven-three/build.gradle");
+
+		String content = FileUtil.read(buildGradle);
+
+		Assert.assertTrue(content, content.contains("release.dxp.api"));
+	}
+
+	@Test
+	public void testCreateWorkspaceDXPVersionDefault() throws Exception {
+		File workspaceDXP73 = new File(_rootDir, "workspace73");
+
+		File modulesDir = new File(workspaceDXP73, "modules");
+
+		_makeWorkspaceVersion(workspaceDXP73, "dxp-7.3-ep5");
+
+		String[] sevenThreeArgs = {
+			"--base", workspaceDXP73.getAbsolutePath(), "create", "-t", "portlet", "seven-three"
+		};
+
+		TestUtil.runBlade(workspaceDXP73, _extensionsDir, sevenThreeArgs);
+
+		File buildGradle = new File(modulesDir, "seven-three/build.gradle");
+
+		String content = FileUtil.read(buildGradle);
+
+		Assert.assertTrue(content, content.contains("release.dxp.api"));
+	}
+
+	@Test
 	public void testCreateWorkspaceFormField72() throws Exception {
 		File workspace = new File(_rootDir, "workspace");
 
@@ -951,6 +1003,34 @@ public class CreateCommandTest {
 		String[] args = {
 			"create", "--base", workspace.getAbsolutePath(), "-d", modulesDir.getAbsolutePath(), "-t", "form-field",
 			"sampleFormField", "-v", BladeTest.LIFERAY_VERSION_72
+		};
+
+		TestUtil.runBlade(workspace, _extensionsDir, args);
+
+		String projectPath = modulesDir.getAbsolutePath();
+
+		_checkFileExists(projectPath + "/sampleFormField");
+
+		BuildTask buildTask = GradleRunnerUtil.executeGradleRunner(workspace.getPath(), "jar");
+
+		GradleRunnerUtil.verifyGradleRunnerOutput(buildTask);
+
+		GradleRunnerUtil.verifyBuildOutput(projectPath + "/sampleFormField", "sampleformfield-1.0.0.jar");
+
+		_verifyImportPackage(new File(projectPath, "sampleFormField/build/libs/sampleformfield-1.0.0.jar"));
+	}
+
+	@Test
+	public void testCreateWorkspaceFormField73React() throws Exception {
+		File workspace = new File(_rootDir, "workspace");
+
+		_makeWorkspaceVersion(workspace, BladeTest.PRODUCT_VERSION_PORTAL_73);
+
+		File modulesDir = new File(workspace, "modules");
+
+		String[] args = {
+			"create", "--base", workspace.getAbsolutePath(), "-d", modulesDir.getAbsolutePath(), "-t", "form-field",
+			"sampleFormField", "--js-framework", "react", "-v", BladeTest.LIFERAY_VERSION_73
 		};
 
 		TestUtil.runBlade(workspace, _extensionsDir, args);
@@ -1138,7 +1218,7 @@ public class CreateCommandTest {
 
 		File file = _checkFileExists(projectPath + "/sample/sample-service/build.gradle");
 
-		_contains(file, ".*compileOnly project\\(\":modules:nested:path:sample:sample-api\"\\).*");
+		_contains(file, ".*compile project\\(\":modules:nested:path:sample:sample-api\"\\).*");
 	}
 
 	@Test
@@ -1210,7 +1290,7 @@ public class CreateCommandTest {
 
 		File file = _checkFileExists(projectPath + "/sample/sample-service/build.gradle");
 
-		_contains(file, ".*compileOnly project\\(\":modules:sample:sample-api\"\\).*");
+		_contains(file, ".*compile project\\(\":modules:sample:sample-api\"\\).*");
 
 		BuildTask buildService = GradleRunnerUtil.executeGradleRunner(workspace.getPath(), "buildService");
 
@@ -1302,8 +1382,7 @@ public class CreateCommandTest {
 
 		String content = FileUtil.read(buildGradle);
 
-		Assert.assertTrue(content, content.contains("js.loader.modules.extender.api"));
-		Assert.assertTrue(content, content.contains("\"com.liferay.portal.kernel\""));
+		Assert.assertTrue(content, content.contains("com.liferay.frontend.js.loader.modules.extender.api"));
 	}
 
 	@Test
@@ -1312,7 +1391,7 @@ public class CreateCommandTest {
 
 		File modulesDir = new File(workspace71, "modules");
 
-		_makeWorkspace(workspace71);
+		_makeWorkspaceVersion(workspace71, BladeTest.PRODUCT_VERSION_PORTAL_71);
 
 		String[] sevenOneArgs = {
 			"--base", workspace71.getAbsolutePath(), "create", "-v", "7.1", "-t", "npm-angular-portlet", "seven-one"
@@ -1324,8 +1403,7 @@ public class CreateCommandTest {
 
 		String content = FileUtil.read(buildGradle);
 
-		Assert.assertTrue(content.contains("js.loader.modules.extender.api"));
-		Assert.assertTrue(content, content.contains("\"com.liferay.portal.kernel\""));
+		Assert.assertTrue(content, content.contains("com.liferay.frontend.js.loader.modules.extender.api"));
 	}
 
 	@Test
@@ -1344,7 +1422,28 @@ public class CreateCommandTest {
 
 		String content = FileUtil.read(buildGradle);
 
-		Assert.assertTrue(content, content.contains("\"com.liferay.portal.kernel\""));
+		Assert.assertTrue(content, content.contains("release.portal.api"));
+	}
+
+	@Test
+	public void testCreateWorkspaceLiferayVersionFromCommandLine() throws Exception {
+		File workspace73 = new File(_rootDir, "workspace73");
+
+		File modulesDir = new File(workspace73, "modules");
+
+		_makeWorkspace(workspace73);
+
+		String[] sevenTwoArgs = {
+			"--base", workspace73.getAbsolutePath(), "create", "-t", "portlet", "seven-two", "-v", "7.2"
+		};
+
+		TestUtil.runBlade(workspace73, _extensionsDir, sevenTwoArgs);
+
+		File buildGradle = new File(modulesDir, "seven-two/build.gradle");
+
+		String content = FileUtil.read(buildGradle);
+
+		Assert.assertFalse(content, content.contains("release.portal.api"));
 	}
 
 	@Test
@@ -1390,7 +1489,7 @@ public class CreateCommandTest {
 
 		File gradlePropertiesFile = new File(workspace, "gradle.properties");
 
-		String modulesDirNull = "\nliferay.workspace.modules.dir=";
+		String modulesDirNull = "\n" + WorkspaceConstants.DEFAULT_MODULES_DIR_PROPERTY + "=";
 
 		Files.write(gradlePropertiesFile.toPath(), modulesDirNull.getBytes(), StandardOpenOption.APPEND);
 
@@ -1458,6 +1557,34 @@ public class CreateCommandTest {
 	}
 
 	@Test
+	public void testCreateWorkspacePortalLiferayVersionFromDocker() throws Exception {
+		File workspace73 = new File(_rootDir, "workspace73");
+
+		_makeWorkspace(workspace73);
+
+		File gradleProperties = new File(workspace73, "gradle.properties");
+
+		Files.deleteIfExists(gradleProperties.toPath());
+
+		String dockerImageProperty =
+			WorkspaceConstants.DEFAULT_LIFERAY_DOCKER_IMAGE_PROPERTY + "=liferay/portal:7.3.4-ga5-202008131318";
+
+		Files.createFile(gradleProperties.toPath());
+
+		Files.write(gradleProperties.toPath(), dockerImageProperty.getBytes(), StandardOpenOption.APPEND);
+
+		String[] sevenThreeArgs = {"--base", workspace73.getAbsolutePath(), "create", "-t", "portlet", "seven-three"};
+
+		TestUtil.runBlade(workspace73, _extensionsDir, sevenThreeArgs);
+
+		File buildGradle = new File(workspace73, "seven-three/build.gradle");
+
+		String content = FileUtil.read(buildGradle);
+
+		Assert.assertTrue(content, content.contains("release.portal.api"));
+	}
+
+	@Test
 	public void testCreateWorkspaceProjectAllDefaults() throws Exception {
 		File workspace = new File(_rootDir, "workspace");
 
@@ -1492,6 +1619,8 @@ public class CreateCommandTest {
 		GradleRunnerUtil.verifyBuildOutput(projectPath + "/foo", "foo-1.0.0.jar");
 
 		_verifyImportPackage(new File(projectPath, "foo/build/libs/foo-1.0.0.jar"));
+
+		_resolveProject(buildTask, projectPath);
 	}
 
 	@Test
@@ -1545,7 +1674,7 @@ public class CreateCommandTest {
 
 		_makeWorkspaceVersion(workspace70, BladeTest.PRODUCT_VERSION_PORTAL_70);
 
-		_enableTargetPlatformInWorkspace(workspace70, "7.0.6");
+		_enableTargetPlatformInWorkspace(workspace70, "7.0.6-2");
 
 		String[] sevenZeroArgs = {
 			"--base", workspace70.getAbsolutePath(), "create", "-t", "service-builder", "seven-zero"
@@ -1559,7 +1688,15 @@ public class CreateCommandTest {
 
 		_checkFileExists(projectPath + "/seven-zero/seven-zero-api/build.gradle");
 
-		_checkFileExists(projectPath + "/seven-zero/seven-zero-service/build.gradle");
+		File buildGradle = new File(projectPath + "/seven-zero/seven-zero-service/build.gradle");
+
+		Assert.assertTrue(buildGradle.exists());
+
+		String content = FileUtil.read(buildGradle);
+
+		content = content.replaceAll("compileOnly project", "compile project");
+
+		Files.write(buildGradle.toPath(), content.getBytes());
 
 		BuildTask buildService = GradleRunnerUtil.executeGradleRunner(workspace70.getPath(), "buildService");
 
@@ -1575,11 +1712,13 @@ public class CreateCommandTest {
 
 		_verifyImportPackage(
 			new File(projectPath, "seven-zero/seven-zero-service/build/libs/seven.zero.service-1.0.0.jar"));
+
+		_resolveProject(buildTask, projectPath);
 	}
 
 	@Test
 	public void testCreateWorkspaceTargetPlatformLiferayVersion71() throws Exception {
-		File workspace71 = new File(_rootDir, "workspace70");
+		File workspace71 = new File(_rootDir, "workspace71");
 
 		File modulesDir = new File(workspace71, "modules");
 
@@ -1587,13 +1726,13 @@ public class CreateCommandTest {
 
 		_makeWorkspaceVersion(workspace71, BladeTest.PRODUCT_VERSION_PORTAL_71);
 
-		_enableTargetPlatformInWorkspace(workspace71, "7.1.3");
+		_enableTargetPlatformInWorkspace(workspace71, "7.1.3-1");
 
-		String[] sevenZeroArgs = {
+		String[] sevenOneArgs = {
 			"--base", workspace71.getAbsolutePath(), "create", "-t", "service-builder", "seven-one"
 		};
 
-		TestUtil.runBlade(workspace71, _extensionsDir, sevenZeroArgs);
+		TestUtil.runBlade(workspace71, _extensionsDir, sevenOneArgs);
 
 		_checkFileExists(projectPath + "/seven-one/build.gradle");
 
@@ -1601,7 +1740,15 @@ public class CreateCommandTest {
 
 		_checkFileExists(projectPath + "/seven-one/seven-one-api/build.gradle");
 
-		_checkFileExists(projectPath + "/seven-one/seven-one-service/build.gradle");
+		File buildGradle = new File(projectPath + "/seven-one/seven-one-service/build.gradle");
+
+		Assert.assertTrue(buildGradle.exists());
+
+		String content = FileUtil.read(buildGradle);
+
+		content = content.replaceAll("compileOnly project", "compile project");
+
+		Files.write(buildGradle.toPath(), content.getBytes());
 
 		BuildTask buildService = GradleRunnerUtil.executeGradleRunner(workspace71.getPath(), "buildService");
 
@@ -1616,6 +1763,59 @@ public class CreateCommandTest {
 
 		_verifyImportPackage(
 			new File(projectPath, "seven-one/seven-one-service/build/libs/seven.one.service-1.0.0.jar"));
+
+		_resolveProject(buildTask, projectPath);
+	}
+
+	@Test
+	public void testCreateWorkspaceTargetPlatformLiferayVersion72() throws Exception {
+		File workspace72 = new File(_rootDir, "workspace72");
+
+		File modulesDir = new File(workspace72, "modules");
+
+		String projectPath = modulesDir.getAbsolutePath();
+
+		_makeWorkspaceVersion(workspace72, BladeTest.PRODUCT_VERSION_PORTAL_72);
+
+		_enableTargetPlatformInWorkspace(workspace72, "7.2.1-1");
+
+		String[] sevenTwoArgs = {
+			"--base", workspace72.getAbsolutePath(), "create", "-t", "service-builder", "seven-two"
+		};
+
+		TestUtil.runBlade(workspace72, _extensionsDir, sevenTwoArgs);
+
+		_checkFileExists(projectPath + "/seven-two/build.gradle");
+
+		_checkFileDoesNotExists(projectPath + "/seven-two/settings.gradle");
+
+		_checkFileExists(projectPath + "/seven-two/seven-two-api/build.gradle");
+
+		File buildGradle = new File(projectPath + "/seven-two/seven-two-service/build.gradle");
+
+		Assert.assertTrue(buildGradle.exists());
+
+		String content = FileUtil.read(buildGradle);
+
+		content = content.replaceAll("compileOnly project", "compile project");
+
+		Files.write(buildGradle.toPath(), content.getBytes());
+
+		BuildTask buildService = GradleRunnerUtil.executeGradleRunner(workspace72.getPath(), "buildService");
+
+		GradleRunnerUtil.verifyGradleRunnerOutput(buildService);
+
+		BuildTask buildTask = GradleRunnerUtil.executeGradleRunner(workspace72.getPath(), "jar");
+
+		GradleRunnerUtil.verifyGradleRunnerOutput(buildTask);
+
+		GradleRunnerUtil.verifyBuildOutput(projectPath + "/seven-two/seven-two-api", "seven.two.api-1.0.0.jar");
+		GradleRunnerUtil.verifyBuildOutput(projectPath + "/seven-two/seven-two-service", "seven.two.service-1.0.0.jar");
+
+		_verifyImportPackage(
+			new File(projectPath, "seven-two/seven-two-service/build/libs/seven.two.service-1.0.0.jar"));
+
+		_resolveProject(buildTask, projectPath);
 	}
 
 	@Test
@@ -1720,7 +1920,8 @@ public class CreateCommandTest {
 	private static File _enableTargetPlatformInWorkspace(File workspaceDir, String liferayVersion) throws IOException {
 		File gradlePropertiesFile = new File(workspaceDir, "gradle.properties");
 
-		String targetPlatformVersionProperty = "\nliferay.workspace.target.platform.version=" + liferayVersion;
+		String targetPlatformVersionProperty =
+			System.lineSeparator() + WorkspaceConstants.DEFAULT_TARGET_PLATFORM_VERSION_PROPERTY + "=" + liferayVersion;
 
 		Files.write(gradlePropertiesFile.toPath(), targetPlatformVersionProperty.getBytes(), StandardOpenOption.APPEND);
 
@@ -1732,7 +1933,9 @@ public class CreateCommandTest {
 
 		Assert.assertTrue(gradleProperties.exists());
 
-		String configLine = System.lineSeparator() + "liferay.workspace.modules.dir=modules";
+		String configLine =
+			System.lineSeparator() + WorkspaceConstants.DEFAULT_MODULES_DIR_PROPERTY + "=" +
+				WorkspaceConstants.DEFAULT_MODULES_DIR;
 
 		Files.write(gradleProperties.toPath(), configLine.getBytes(), StandardOpenOption.APPEND);
 	}
@@ -1827,6 +2030,22 @@ public class CreateCommandTest {
 		TestUtil.runBlade(workspace, _extensionsDir, args);
 
 		_addDefaultModulesDir(workspace);
+	}
+
+	private void _resolveProject(BuildTask buildTask, String projectPath) throws Exception {
+		String version = System.getProperty("java.specification.version");
+
+		if (version.indexOf('.') > -1) {
+			version = version.substring(version.indexOf('.') + 1);
+		}
+
+		int versionNumber = Integer.parseInt(version);
+
+		Assume.assumeTrue(versionNumber < 9);
+
+		buildTask = GradleRunnerUtil.executeGradleRunner(projectPath, "resolve");
+
+		GradleRunnerUtil.verifyGradleRunnerOutput(buildTask);
 	}
 
 	private void _testCreateWar(File workspace, String projectType, String projectName) throws Exception {

@@ -384,6 +384,10 @@ public class BladeCLI {
 				simplifiedUsageString.append(line + System.lineSeparator());
 			}
 
+			if (!isWorkspace()) {
+				simplifiedUsageString.append("To see more command options, run \"blade init\" to create a workspace");
+			}
+
 			String output = simplifiedUsageString.toString();
 
 			out(output);
@@ -507,7 +511,7 @@ public class BladeCLI {
 						while (parameterException != null) {
 							parameterMessage = parameterException.getMessage();
 
-							List<String> fixedArgs = new ArrayList<>(Arrays.asList(args));
+							List<String> fixedArgs = new ArrayList<>(Arrays.asList(command));
 
 							if (parameterMessage.contains(_MESSAGE_OPTIONS_ARE_REQUIRED) ||
 								parameterMessage.contains(_MESSAGE_OPTION_IS_REQUIRED)) {
@@ -535,9 +539,9 @@ public class BladeCLI {
 										commandArgs, Optional.of(missingParameter),
 										Optional.ofNullable(missingParameterDescription), reader, profileName);
 
-									fixedArgs.add(1, missingParameter);
+									fixedArgs.add(missingParameter);
 
-									fixedArgs.add(2, value);
+									fixedArgs.add(value);
 								}
 
 								args = fixedArgs.toArray(new String[0]);

@@ -20,7 +20,6 @@ import com.liferay.blade.cli.BladeTest;
 import com.liferay.blade.cli.BladeTestResults;
 import com.liferay.blade.cli.GradleRunnerUtil;
 import com.liferay.blade.cli.TestUtil;
-import com.liferay.blade.cli.WorkspaceProvider;
 import com.liferay.blade.cli.util.FileUtil;
 
 import java.io.ByteArrayInputStream;
@@ -98,9 +97,7 @@ public class InitCommandTest {
 
 		bladeTest.run(args);
 
-		WorkspaceProvider workspaceProvider = bladeTest.getWorkspaceProvider(emptyDir);
-
-		Assert.assertNotNull(workspaceProvider);
+		Assert.assertNotNull(bladeTest.getWorkspaceProvider(emptyDir));
 	}
 
 	@Test
@@ -117,9 +114,7 @@ public class InitCommandTest {
 
 		bladeTest.run(args);
 
-		WorkspaceProvider workspaceProvider = bladeTest.getWorkspaceProvider(emptyDir);
-
-		Assert.assertNotNull(workspaceProvider);
+		Assert.assertNotNull(bladeTest.getWorkspaceProvider(emptyDir));
 	}
 
 	@Test
@@ -136,9 +131,7 @@ public class InitCommandTest {
 
 		bladeTest.run(args);
 
-		WorkspaceProvider workspaceProvider = bladeTest.getWorkspaceProvider(emptyDir);
-
-		Assert.assertNotNull(workspaceProvider);
+		Assert.assertNotNull(bladeTest.getWorkspaceProvider(emptyDir));
 	}
 
 	@Test
@@ -331,18 +324,6 @@ public class InitCommandTest {
 		Assert.assertTrue(output, output.contains("dxp-7.2-sp1"));
 
 		Assert.assertTrue(output, output.contains("portal-7.0-ga7"));
-
-		List<String> lines = new ArrayList<>();
-
-		try (Scanner scanner = new Scanner(output)) {
-			while (scanner.hasNextLine()) {
-				lines.add(scanner.nextLine());
-			}
-		}
-
-		String firstLine = lines.get(0);
-
-		Assert.assertEquals("dxp-7.2-sp2", firstLine);
 	}
 
 	@Test
@@ -358,17 +339,7 @@ public class InitCommandTest {
 
 		String output = bladeTestResults.getOutput();
 
-		Assert.assertTrue(output, output.contains("dxp-7.2-sp2"));
-
-		List<String> lines = new ArrayList<>();
-
-		try (Scanner scanner = new Scanner(output)) {
-			while (scanner.hasNextLine()) {
-				lines.add(scanner.nextLine());
-			}
-		}
-
-		Assert.assertEquals("1: dxp-7.2-sp2", lines.get(11));
+		Assert.assertTrue(output, output.contains("dxp-7.3-ep4"));
 	}
 
 	@Test
@@ -379,9 +350,9 @@ public class InitCommandTest {
 
 		String output = bladeTestResults.getOutput();
 
-		Assert.assertTrue(output, output.contains("dxp-7.2-sp2"));
+		Assert.assertTrue(output, output.contains("dxp-7.2-sp3"));
 
-		Assert.assertFalse(output, output.contains("dxp-7.2-sp1"));
+		Assert.assertFalse(output, output.contains("dxp-7.2-sp2"));
 
 		List<String> lines = new ArrayList<>();
 
@@ -393,7 +364,7 @@ public class InitCommandTest {
 
 		String firstLine = lines.get(0);
 
-		Assert.assertEquals("dxp-7.2-sp2", firstLine);
+		Assert.assertTrue(firstLine, firstLine.contains("dxp-7.3-"));
 	}
 
 	@Test
@@ -669,7 +640,7 @@ public class InitCommandTest {
 		GradleRunnerUtil.verifyBuildOutput(projectPath.toString(), "foo-1.0.0.jar");
 	}
 
-	private static final String _GRADLE_PLUGINS_WORKSPACE_VERSION = "2.5.3";
+	private static final String _GRADLE_PLUGINS_WORKSPACE_VERSION = "3.0.11";
 
 	private File _extensionsDir = null;
 	private File _workspaceDir = null;

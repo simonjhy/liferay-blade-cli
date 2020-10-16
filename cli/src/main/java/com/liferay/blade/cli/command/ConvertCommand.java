@@ -428,8 +428,6 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 
 		List<GAV> convertedDependencies = new ArrayList<>();
 
-		List<String> portalDependencyJars = new ArrayList<>(Arrays.asList(_PORTLET_PLUGIN_API_DEPENDENCIES));
-
 		File liferayPluginPackageFile = new File(warDir, "src/main/webapp/WEB-INF/liferay-plugin-package.properties");
 
 		if (liferayPluginPackageFile.exists()) {
@@ -437,6 +435,8 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 				Properties liferayPluginPackageProperties = _loadProperties(fileInputStream);
 
 				String portalJarsValue = liferayPluginPackageProperties.getProperty("portal-dependency-jars");
+
+				List<String> portalDependencyJars = new ArrayList<>(Arrays.asList(_PORTLET_PLUGIN_API_DEPENDENCIES));
 
 				if (Objects.nonNull(portalJarsValue)) {
 					Collections.addAll(portalDependencyJars, portalJarsValue.split(","));
@@ -620,7 +620,7 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 
 			ConvertArgs convertServiceBuilderArgs = new ConvertArgs(
 				convertArgs.isAll(), convertArgs.isList(), convertArgs.isThemeBuilder(), convertArgs.isRemoveSource(),
-				convertArgs.getSource(), arguments);
+				convertArgs.getSource(), arguments, convertArgs.getProduct());
 
 			convertServiceBuilderArgs.setBase(convertArgs.getBase());
 
@@ -839,8 +839,6 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 
 			NodeList depElements = documentElement.getElementsByTagName("dependency");
 
-			Map<String, GAV> migratedDependencies = _getMigratedDependecies();
-
 			if ((depElements != null) && (depElements.getLength() > 0)) {
 				for (int i = 0; i < depElements.getLength(); i++) {
 					Node depElement = depElements.item(i);
@@ -848,6 +846,8 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 					String name = _getAttr(depElement, "name");
 					String org = _getAttr(depElement, "org");
 					String rev = _getAttr(depElement, "rev");
+
+					Map<String, GAV> migratedDependencies = _getMigratedDependecies();
 
 					Set<String> migratedKeys = migratedDependencies.keySet();
 
@@ -1032,9 +1032,7 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 
 				@Override
 				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-					Path name = dir.getName(dir.getNameCount() - 1);
-
-					String nameValue = name.toString();
+					String nameValue = String.valueOf(dir.getName(dir.getNameCount() - 1));
 
 					if (nameValue.equals(pluginName)) {
 						Path parent = dir.getParent();
@@ -1161,6 +1159,10 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 		createArgs.setName("war-portlet");
 		createArgs.setQuiet(baseArgs.isQuiet());
 
+		ConvertArgs originalConvertArgs = getArgs();
+
+		createArgs.setProduct(originalConvertArgs.getProduct());
+
 		CreateCommand createCommand = new CreateCommand();
 
 		createCommand.setArgs(createArgs);
@@ -1216,12 +1218,13 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 	private static final Map<String, GAV> _migratedDependencies71 = new HashMap<>();
 	private static final Map<String, GAV> _migratedDependencies72 = new HashMap<>();
 	private static final Map<String, GAV> _migratedDependencies73 = new HashMap<>();
-	private static final Map<String, String> _portalClasspathDependenciesMap = new HashMap<>();
 	{
 		_loadMigratedDependencies("/migrated-dependencies-7.1.properties", _migratedDependencies71);
 		_loadMigratedDependencies("/migrated-dependencies-7.2.properties", _migratedDependencies72);
 		_loadMigratedDependencies("/migrated-dependencies-7.3.properties", _migratedDependencies73);
 	}
+
+	private static final Map<String, String> _portalClasspathDependenciesMap = new HashMap<>();
 
 	private static class GAV {
 

@@ -50,23 +50,20 @@ public class BladeTest extends BladeCLI {
 
 	public static final String PRODUCT_VERSION_PORTAL_72 = "portal-7.2-ga2";
 
-	public static final String PRODUCT_VERSION_PORTAL_73 = "portal-7.3-ga4";
+	public static final String PRODUCT_VERSION_PORTAL_73 = "portal-7.3-ga6";
 
 	public static BladeTestBuilder builder() {
 		return new BladeTestBuilder();
 	}
 
+	@Override
 	public BladeSettings getBladeSettings() throws IOException {
 		File settingsBaseDir = _getSettingsBaseDir();
 
 		File settingsFile = new File(settingsBaseDir, ".blade/settings.properties");
 
-		if (settingsFile.exists()) {
-			String name = settingsFile.getName();
-
-			if (Objects.equals("settings.properties", name)) {
-				_migrateBladeSettingsFile(settingsFile);
-			}
+		if (settingsFile.exists() && Objects.equals("settings.properties", settingsFile.getName())) {
+			_migrateBladeSettingsFile(settingsFile);
 		}
 
 		settingsFile = new File(settingsBaseDir, _BLADE_PROPERTIES);
