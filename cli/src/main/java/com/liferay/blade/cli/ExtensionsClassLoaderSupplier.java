@@ -19,7 +19,6 @@ package com.liferay.blade.cli;
 import com.liferay.blade.cli.util.CombinedClassLoader;
 import com.liferay.blade.cli.util.FileUtil;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -51,18 +50,14 @@ public class ExtensionsClassLoaderSupplier implements AutoCloseable, Supplier<Cl
 
 	@Override
 	public void close() throws Exception {
-		if ((_serviceLoaderClassLoader != null) && (_serviceLoaderClassLoader instanceof Closeable)) {
-			Closeable closeable = (Closeable)_serviceLoaderClassLoader;
+		if ((_serviceLoaderClassLoader != null) && (_serviceLoaderClassLoader instanceof AutoCloseable)) {
+			AutoCloseable closeable = (AutoCloseable)_serviceLoaderClassLoader;
 
 			closeable.close();
 		}
 
 		if ((_tempExtensionsDirectory != null) && Files.exists(_tempExtensionsDirectory)) {
-			try {
-				FileUtil.deleteDirIfExists(_tempExtensionsDirectory);
-			}
-			catch (IOException ioe) {
-			}
+			FileUtil.deleteDirIfExists(_tempExtensionsDirectory);
 		}
 	}
 

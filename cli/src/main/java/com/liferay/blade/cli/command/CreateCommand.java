@@ -25,6 +25,7 @@ import com.liferay.blade.cli.WorkspaceConstants;
 import com.liferay.blade.cli.WorkspaceProvider;
 import com.liferay.blade.cli.gradle.GradleWorkspaceProvider;
 import com.liferay.blade.cli.util.BladeUtil;
+import com.liferay.blade.cli.util.CombinedClassLoader;
 import com.liferay.project.templates.ProjectTemplates;
 import com.liferay.project.templates.extensions.ProjectTemplatesArgs;
 import com.liferay.project.templates.extensions.ProjectTemplatesArgsExt;
@@ -181,10 +182,14 @@ public class CreateCommand extends BaseCommand<CreateArgs> {
 
 		Method m = null;
 
-		try {
-			URI uri = templateFile.toURI();
+		URI uri = templateFile.toURI();
 
-			thread.setContextClassLoader(new URLClassLoader(new URL[] {uri.toURL()}));
+		URLClassLoader urlClassLoader = new URLClassLoader(new URL[] {uri.toURL()}, getClass().getClassLoader());
+
+		CombinedClassLoader combinedClassLoader = new CombinedClassLoader(oldContextClassLoader, urlClassLoader);
+
+		try {
+			thread.setContextClassLoader(combinedClassLoader);
 
 			m = ProjectTemplates.class.getDeclaredMethod("_getProjectTemplateArgsExt", String.class, File.class);
 
@@ -262,8 +267,6 @@ public class CreateCommand extends BaseCommand<CreateArgs> {
 			if (m != null) {
 				m.setAccessible(false);
 			}
-
-			thread.setContextClassLoader(oldContextClassLoader);
 		}
 
 		execute(projectTemplatesArgs);

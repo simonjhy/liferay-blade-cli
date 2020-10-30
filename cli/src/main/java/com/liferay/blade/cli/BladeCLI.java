@@ -1319,8 +1319,10 @@ public class BladeCLI {
 				throw th;
 			}
 			finally {
-				if (command instanceof AutoCloseable) {
-					AutoCloseable autoCloseable = (AutoCloseable)command;
+				ClassLoader latestClassLoader = thread.getContextClassLoader();
+
+				if (latestClassLoader instanceof AutoCloseable) {
+					AutoCloseable autoCloseable = (AutoCloseable)latestClassLoader;
 
 					autoCloseable.close();
 				}

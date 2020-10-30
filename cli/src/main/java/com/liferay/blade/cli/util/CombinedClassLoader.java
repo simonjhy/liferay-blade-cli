@@ -17,11 +17,13 @@
 package com.liferay.blade.cli.util;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.lang.reflect.Field;
+
 import java.net.URL;
+import java.net.URLClassLoader;
 
 import java.nio.ByteBuffer;
 
@@ -29,12 +31,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * @author Christopher Bryan Boyd
+ * @author Seiphon Wang
  */
 public class CombinedClassLoader extends ClassLoader implements AutoCloseable {
 
@@ -48,8 +55,61 @@ public class CombinedClassLoader extends ClassLoader implements AutoCloseable {
 	public void close() throws Exception {
 		for (ClassLoader classLoader : _classLoaders) {
 			try {
-				if (classLoader instanceof Closeable) {
-					Closeable closeable = (Closeable)classLoader;
+				@SuppressWarnings("static-access")
+				final ClassLoader systemClassLoader = classLoader.getSystemClassLoader();
+
+				if (classLoader.equals(systemClassLoader)) {
+					continue;
+				}
+
+				if (classLoader instanceof URLClassLoader) {
+					try {
+						Class<URLClassLoader> urlClassLoader = URLClassLoader.class;
+
+						Field ucp = urlClassLoader.getDeclaredField("ucp");
+
+						ucp.setAccessible(true);
+
+						Object urlClassPath = ucp.get(classLoader);
+
+						Class<? extends Object> clazz = urlClassPath.getClass();
+
+						Field loaders = clazz.getDeclaredField("loaders");
+
+						loaders.setAccessible(true);
+
+						Object collectionObject = loaders.get(urlClassPath);
+
+						Collection<?> collection = (Collection<?>)collectionObject;
+
+						Object[] jarLoaders = collection.toArray();
+
+						for (Object jarLoader : jarLoaders) {
+							try {
+								clazz = jarLoader.getClass();
+
+								Field jarField = clazz.getDeclaredField("jar");
+
+								jarField.setAccessible(true);
+
+								Object jarFileObject = jarField.get(jarLoader);
+
+								JarFile jarFile = (JarFile)jarFileObject;
+
+								_closableJarFiles.add(jarFile.getName());
+
+								jarFile.close();
+							}
+							catch (Throwable th) {
+							}
+						}
+					}
+					catch (Throwable th) {
+					}
+				}
+
+				if (classLoader instanceof AutoCloseable) {
+					AutoCloseable closeable = (AutoCloseable)classLoader;
 
 					closeable.close();
 				}
@@ -57,6 +117,8 @@ public class CombinedClassLoader extends ClassLoader implements AutoCloseable {
 			catch (Throwable th) {
 			}
 		}
+
+		_cleanupJarFileFactory();
 	}
 
 	@Override
@@ -143,6 +205,131 @@ public class CombinedClassLoader extends ClassLoader implements AutoCloseable {
 		_classLoaders.add(classLoader);
 	}
 
+	private void _cleanupJarFileFactory() {
+		Class<?> classJarURLConnection = null;
+
+		try {
+			classJarURLConnection = Class.forName("sun.net.www.protocol.jar.JarURLConnection");
+
+			if (classJarURLConnection == null) {
+				return;
+			}
+
+			Field field = classJarURLConnection.getDeclaredField("factory");
+
+			if (field == null) {
+				return;
+			}
+
+			field.setAccessible(true);
+
+			Object object = field.get(null);
+
+			if (object == null) {
+				return;
+			}
+
+			Class<? extends Object> classJarFileFactory = object.getClass();
+
+			HashMap<?, ?> fileCache = null;
+
+			try {
+				field = classJarFileFactory.getDeclaredField("fileCache");
+
+				field.setAccessible(true);
+
+				object = field.get(null);
+
+				if (object instanceof HashMap) {
+					fileCache = (HashMap<?, ?>)object;
+				}
+			}
+			catch (IllegalAccessException | NoSuchFieldException e) {
+			}
+
+			HashMap<?, ?> urlCache = null;
+
+			try {
+				field = classJarFileFactory.getDeclaredField("urlCache");
+
+				field.setAccessible(true);
+
+				object = field.get(null);
+
+				if (object instanceof HashMap) {
+					urlCache = (HashMap<?, ?>)object;
+				}
+			}
+			catch (IllegalAccessException | NoSuchFieldException e) {
+			}
+
+			if (urlCache != null) {
+				HashMap<?, ?> urlCacheTmp = (HashMap<?, ?>)urlCache.clone();
+
+				Iterator<?> it = urlCacheTmp.keySet(
+				).iterator();
+
+				while (it.hasNext()) {
+					object = it.next();
+
+					if (!(object instanceof JarFile)) {
+						continue;
+					}
+
+					JarFile jarFile = (JarFile)object;
+
+					if (_closableJarFiles.contains(jarFile.getName())) {
+						try {
+							jarFile.close();
+						}
+						catch (IOException e) {
+						}
+
+						if (fileCache != null) {
+							fileCache.remove(urlCache.get(jarFile));
+						}
+
+						urlCache.remove(jarFile);
+					}
+				}
+			}
+			else if (fileCache != null) {
+				HashMap<?, ?> fileCacheTmp = (HashMap<?, ?>)fileCache.clone();
+
+				Iterator<?> it = fileCacheTmp.keySet(
+				).iterator();
+
+				while (it.hasNext()) {
+					Object key = it.next();
+
+					object = fileCache.get(key);
+
+					if (!(object instanceof JarFile)) {
+						continue;
+					}
+
+					JarFile jarFile = (JarFile)object;
+
+					if (_closableJarFiles.contains(jarFile.getName())) {
+						try {
+							jarFile.close();
+						}
+						catch (IOException e) {
+						}
+
+						fileCache.remove(key);
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+		}
+		finally {
+			_closableJarFiles.clear();
+		}
+	}
+
 	private Collection<ClassLoader> _classLoaders = new ArrayList<>();
+	private HashSet<String> _closableJarFiles = new HashSet<>();
 
 }
