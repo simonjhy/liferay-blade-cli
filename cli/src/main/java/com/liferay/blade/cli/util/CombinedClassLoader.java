@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
 
 import java.nio.ByteBuffer;
 
@@ -72,23 +73,23 @@ public class CombinedClassLoader extends ClassLoader implements AutoCloseable {
 
 						Object urlClassPath = ucp.get(classLoader);
 
-						Class<? extends Object> clazz = urlClassPath.getClass();
+						Class<? extends Object> urlClass = urlClassPath.getClass();
 
-						Field loaders = clazz.getDeclaredField("loaders");
+						Field loaders = urlClass.getDeclaredField("loaders");
 
 						loaders.setAccessible(true);
 
-						Object collectionObject = loaders.get(urlClassPath);
+						Object urlClasspathLoaders = loaders.get(urlClassPath);
 
-						Collection<?> collection = (Collection<?>)collectionObject;
+						Collection<?> loaderCollection = (Collection<?>)urlClasspathLoaders;
 
-						Object[] jarLoaders = collection.toArray();
+						Object[] jarLoaders = loaderCollection.toArray();
 
 						for (Object jarLoader : jarLoaders) {
 							try {
-								clazz = jarLoader.getClass();
+								Class<? extends Object> jarLoaderClazz = jarLoader.getClass();
 
-								Field jarField = clazz.getDeclaredField("jar");
+								Field jarField = jarLoaderClazz.getDeclaredField("jar");
 
 								jarField.setAccessible(true);
 
@@ -184,10 +185,12 @@ public class CombinedClassLoader extends ClassLoader implements AutoCloseable {
 	}
 
 	private static ByteBuffer _loadResourceFromClasspath(URL url) throws IOException {
-		try (InputStream inputStream = url.openStream()) {
-			byte[] buffer = new byte[1024];
+		byte[] buffer = new byte[1024];
 
-			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(buffer.length);
+		URLConnection urlConnection = url.openConnection();
+
+		try (InputStream inputStream = urlConnection.getInputStream();
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(buffer.length)) {
 
 			int bytesCount = -1;
 
@@ -215,33 +218,33 @@ public class CombinedClassLoader extends ClassLoader implements AutoCloseable {
 				return;
 			}
 
-			Field field = classJarURLConnection.getDeclaredField("factory");
+			Field factoryField = classJarURLConnection.getDeclaredField("factory");
 
-			if (field == null) {
+			if (factoryField == null) {
 				return;
 			}
 
-			field.setAccessible(true);
+			factoryField.setAccessible(true);
 
-			Object object = field.get(null);
+			Object factoryObject = factoryField.get(null);
 
-			if (object == null) {
+			if (factoryObject == null) {
 				return;
 			}
 
-			Class<? extends Object> classJarFileFactory = object.getClass();
+			Class<? extends Object> classJarFileFactory = factoryObject.getClass();
 
 			HashMap<?, ?> fileCache = null;
 
 			try {
-				field = classJarFileFactory.getDeclaredField("fileCache");
+				Field fileCacheField = classJarFileFactory.getDeclaredField("fileCache");
 
-				field.setAccessible(true);
+				fileCacheField.setAccessible(true);
 
-				object = field.get(null);
+				Object fileCacheObject = fileCacheField.get(null);
 
-				if (object instanceof HashMap) {
-					fileCache = (HashMap<?, ?>)object;
+				if (fileCacheObject instanceof HashMap) {
+					fileCache = (HashMap<?, ?>)fileCacheObject;
 				}
 			}
 			catch (IllegalAccessException | NoSuchFieldException e) {
@@ -250,65 +253,62 @@ public class CombinedClassLoader extends ClassLoader implements AutoCloseable {
 			HashMap<?, ?> urlCache = null;
 
 			try {
-				field = classJarFileFactory.getDeclaredField("urlCache");
+				Field urlCacheField = classJarFileFactory.getDeclaredField("urlCache");
 
-				field.setAccessible(true);
+				urlCacheField.setAccessible(true);
 
-				object = field.get(null);
+				Object urlCacheObject = urlCacheField.get(null);
 
-				if (object instanceof HashMap) {
-					urlCache = (HashMap<?, ?>)object;
+				if (urlCacheObject instanceof HashMap) {
+					urlCache = (HashMap<?, ?>)urlCacheObject;
 				}
 			}
 			catch (IllegalAccessException | NoSuchFieldException e) {
 			}
 
 			if (urlCache != null) {
-				HashMap<?, ?> urlCacheTmp = (HashMap<?, ?>)urlCache.clone();
+				HashMap<?, ?> urlCacheClone = (HashMap<?, ?>)urlCache.clone();
 
-				Iterator<?> it = urlCacheTmp.keySet(
+				Iterator<?> urlCacheIterator = urlCacheClone.keySet(
 				).iterator();
 
-				while (it.hasNext()) {
-					object = it.next();
+				while (urlCacheIterator.hasNext()) {
+					Object urlCacheIteratorObject = urlCacheIterator.next();
 
-					if (!(object instanceof JarFile)) {
+					if (!(urlCacheIteratorObject instanceof JarFile)) {
 						continue;
 					}
 
-					JarFile jarFile = (JarFile)object;
+					JarFile jarFile = (JarFile)urlCacheIteratorObject;
 
 					if (_closableJarFiles.contains(jarFile.getName())) {
 						try {
 							jarFile.close();
 						}
 						catch (IOException e) {
-						}
-
-						if (fileCache != null) {
-							fileCache.remove(urlCache.get(jarFile));
 						}
 
 						urlCache.remove(jarFile);
 					}
 				}
 			}
-			else if (fileCache != null) {
-				HashMap<?, ?> fileCacheTmp = (HashMap<?, ?>)fileCache.clone();
 
-				Iterator<?> it = fileCacheTmp.keySet(
+			if (fileCache != null) {
+				HashMap<?, ?> fileCacheClone = (HashMap<?, ?>)fileCache.clone();
+
+				Iterator<?> fileCacheIterator = fileCacheClone.keySet(
 				).iterator();
 
-				while (it.hasNext()) {
-					Object key = it.next();
+				while (fileCacheIterator.hasNext()) {
+					Object fileCacheIteratorKey = fileCacheIterator.next();
 
-					object = fileCache.get(key);
+					Object fileCacheIteratorObject = fileCache.get(fileCacheIteratorKey);
 
-					if (!(object instanceof JarFile)) {
+					if (!(fileCacheIteratorObject instanceof JarFile)) {
 						continue;
 					}
 
-					JarFile jarFile = (JarFile)object;
+					JarFile jarFile = (JarFile)fileCacheIteratorObject;
 
 					if (_closableJarFiles.contains(jarFile.getName())) {
 						try {
@@ -317,7 +317,7 @@ public class CombinedClassLoader extends ClassLoader implements AutoCloseable {
 						catch (IOException e) {
 						}
 
-						fileCache.remove(key);
+						fileCache.remove(jarFile);
 					}
 				}
 			}
