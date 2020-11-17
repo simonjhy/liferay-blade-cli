@@ -70,7 +70,11 @@ public class ExtensionsClassLoaderSupplier implements AutoCloseable, Supplier<Cl
 	public ClassLoader get() {
 		try {
 			if (_serviceLoaderClassLoader == null) {
-				_tempExtensionsDirectory = Files.createTempDirectory("extensions");
+				ProcessHandle processHandle = ProcessHandle.current();
+
+				long pid = processHandle.pid();
+
+				_tempExtensionsDirectory = Files.createTempDirectory("extensions-" + pid + "-");
 
 				FileUtil.copyDir(_extensionsPath, _tempExtensionsDirectory);
 

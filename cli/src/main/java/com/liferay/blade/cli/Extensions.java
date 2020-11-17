@@ -205,7 +205,11 @@ public class Extensions implements Closeable {
 	@Override
 	public void close() throws IOException {
 		if ((_embeddedTemplatesPath != null) && Files.exists(_embeddedTemplatesPath)) {
-			FileUtil.deleteDir(_embeddedTemplatesPath);
+			try {
+				FileUtil.deleteDir(_embeddedTemplatesPath);
+			}
+			catch (Exception e) {
+			}
 		}
 	}
 
@@ -223,7 +227,11 @@ public class Extensions implements Closeable {
 
 	public Path getTemplatesPath() throws IOException {
 		if (_embeddedTemplatesPath == null) {
-			_embeddedTemplatesPath = Files.createTempDirectory("templates");
+			ProcessHandle processHandle = ProcessHandle.current();
+
+			long pid = processHandle.pid();
+
+			_embeddedTemplatesPath = Files.createTempDirectory("templates-" + pid + "-");
 
 			try (InputStream inputStream = Extensions.class.getResourceAsStream(
 					"/blade-extensions-versions.properties")) {
