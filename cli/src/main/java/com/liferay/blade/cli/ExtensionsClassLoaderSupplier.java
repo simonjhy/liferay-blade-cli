@@ -73,7 +73,7 @@ public class ExtensionsClassLoaderSupplier implements AutoCloseable, Supplier<Cl
 			if (_serviceLoaderClassLoader == null) {
 				long pid = ProcessesUtil.getAProcessId();
 
-				_tempExtensionsDirectory = Files.createTempDirectory("extensions-" + pid + "-");
+				_tempExtensionsDirectory = Files.createTempDirectory("blade-extensions-" + pid + "-");
 
 				FileUtil.copyDir(_extensionsPath, _tempExtensionsDirectory);
 

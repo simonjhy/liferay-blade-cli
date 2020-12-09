@@ -16,11 +16,12 @@
 
 package com.liferay.blade.cli.util;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
-import org.apache.tools.ant.util.ProcessUtil;
 
 /**
  * @author Seiphon Wang
@@ -89,7 +90,13 @@ public class ProcessesUtil {
 	}
 
 	public static long getAProcessId() {
-		return Long.parseLong(ProcessUtil.getProcessId("0"));
+		RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+
+		String vmName = runtimeMXBean.getName();
+
+		String pid = vmName.substring(0, vmName.indexOf("@"));
+
+		return Long.parseLong(pid);
 	}
 
 }
